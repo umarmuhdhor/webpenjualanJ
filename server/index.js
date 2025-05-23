@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth'); // Mengimpor { router, authenticate }
 const orderRoutes = require('./routes/orders');
 
 const app = express();
@@ -30,7 +30,7 @@ const upload = multer({
 });
 
 // Rute API
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes.router); // Gunakan authRoutes.router
 app.use('/api/orders', upload.array('designs', 10), orderRoutes); // Mendukung hingga 10 file
 
 // Sajikan file statis dari folder public

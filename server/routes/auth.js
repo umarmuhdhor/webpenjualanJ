@@ -137,4 +137,4 @@ router.get('/users', authenticate, (req, res) => {
   });
 });
 
-module.exports = router;
+module.exports = { router, authenticate };

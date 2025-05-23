@@ -2,7 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const router = express.Router();
 const db = new sqlite3.Database('./server/database/db.sqlite');
-const { authenticate } = require('../middleware/auth');
+const { authenticate } = require('./auth');
 
 // Biaya dasar per desain
 const BASE_COST_BORDIR = 50000; // Rp50.000 per bordir
