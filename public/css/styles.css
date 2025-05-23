@@ -1,0 +1,78 @@
+/* Styling tombol panah Swiper */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #7b1114;
+  background-color: rgba(229, 229, 229, 0.5);
+  padding: 6px;
+  border-radius: 9999px;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  top: 40%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  display: none !important;
+}
+
+.swiper-slide {
+  width: 100% !important;
+}
+
+/* Sedikit masuk ke dalam frame produk */
+.swiper-button-next {
+  right: 4px;
+}
+
+.swiper-button-prev {
+  left: 4px;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* Styling untuk tabel size chart */
+.size-chart-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.size-chart-table th,
+.size-chart-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.size-chart-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+.size-chart-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* Styling untuk cart modal */
+.cart-modal {
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.cart-modal.show {
+  transform: translateX(0);
+}
+
+/* Notification styling */
+#notification {
+  transition: opacity 0.3s ease;
+}
+
+/* Auth modal styling */
+#authModal {
+  transition: opacity 0.3s ease;
+}

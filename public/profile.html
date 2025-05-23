@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Profil Saya - Graha Advertising</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Remix Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#7B1114",
+              secondary: "#6B21A8",
+            },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-gray-50">
+    <div
+      id="notification"
+      class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <!-- Pesan notifikasi akan masuk sini -->
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div
+        class="container mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <div class="flex items-center">
+          <a href="index.html" class="flex items-center">
+            <div
+              class="w-10 h-10 flex items-center justify-center text-primary mr-2"
+            >
+              <i class="ri-building-line ri-2x"> </i>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-['Pacifico'] text-2xl text-primary">
+                Graha
+              </span>
+              <span class="text-xs -mt-1 text-gray-600">
+                Advertising & Konveksi
+              </span>
+            </div>
+          </a>
+        </div>
+        <nav class="hidden md:flex space-x-8">
+          <a
+            class="nav-link text-gray-800 hover:text-primary font-medium"
+            href="index.html#beranda"
+          >
+            Beranda
+          </a>
+          <a
+            class="nav-link text-gray-800 hover:text-primary font-medium"
+            href="index.html#produk"
+          >
+            Produk
+          </a>
+          <a
+            class="nav-link text-gray-800 hover:text-primary font-medium"
+            href="product-detail.html#harga"
+          >
+            Harga
+          </a>
+          <a
+            class="nav-link text-gray-800 hover:text-primary font-medium"
+            href="product-detail.html#ukuran"
+          >
+            Size Chart
+          </a>
+          <a
+            class="nav-link text-gray-800 hover:text-primary font-medium"
+            href="index.html#portofolio"
+          >
+            Portofolio
+          </a>
+          <a
+            class="nav-link text-gray-800 hover:text-primary font-medium"
+            href="index.html#kontak"
+          >
+            Kontak
+          </a>
+        </nav>
+        <!-- Tombol login dan cart -->
+        <div class="flex items-center space-x-4">
+          <button
+            id="profile-button"
+            class="hidden md:flex bg-white text-primary border border-primary px-4 py-2 !rounded-button hover:bg-gray-50 whitespace-nowrap items-center"
+          >
+            <i class="ri-user-line mr-2"></i>
+            <span id="profile-name">Profil Saya</span>
+          </button>
+          <button
+            class="bg-white text-primary border border-primary px-4 py-2 !rounded-button hover:bg-gray-50 whitespace-nowrap flex items-center"
+            id="cart-button"
+          >
+            <i class="ri-shopping-cart-line mr-2"></i>
+            <span
+              class="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+              id="cart-count"
+              >0</span
+            >
+          </button>
+          <div class="md:hidden w-10 h-10 flex items-center justify-center">
+            <i class="ri-menu-line ri-2x"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+      <div class="max-w-5xl mx-auto">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div
+            class="flex flex-col md:flex-row items-center md:items-start gap-6"
+          >
+            <div
+              class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500"
+            >
+              <i class="ri-user-line ri-3x"></i>
+            </div>
+            <div class="flex-1 text-center md:text-left">
+              <h1 class="text-2xl font-bold text-gray-900 mb-2" id="user-name">
+                Nama Pengguna
+              </h1>
+              <p class="text-gray-600 mb-4" id="user-email">
+                email@example.com
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="border-b border-gray-200">
+            <div class="flex flex-wrap -mb-px">
+              <button
+                id="tab-orders"
+                class="inline-block p-4 border-b-2 border-primary text-primary font-medium"
+                onclick="openProfileTab('orders')"
+              >
+                Pesanan Saya
+              </button>
+              <button
+                id="tab-account"
+                class="inline-block p-4 border-b-2 border-transparent hover:text-primary font-medium"
+                onclick="openProfileTab('account')"
+              >
+                Akun Saya
+              </button>
+              <button
+                id="tab-address"
+                class="inline-block p-4 border-b-2 border-transparent hover:text-primary font-medium"
+                onclick="openProfileTab('address')"
+              >
+                Alamat
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="p-6">
+            <!-- Pesanan Saya Tab -->
+            <div id="content-orders" class="tab-content">
+              <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900">Riwayat Pesanan</h2>
+                <div class="relative">
+                  <select
+                    class="border border-gray-300 rounded-md px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option>Semua Pesanan</option>
+                    <option>Menunggu Pembayaran</option>
+                    <option>Diproses</option>
+                    <option>Dikirim</option>
+                    <option>Selesai</option>
+                    <option>Dibatalkan</option>
+                  </select>
+                  <div
+                    class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
+                  >
+                    <i class="ri-arrow-down-s-line"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div id="empty-orders" class="text-center py-12">
+                <div
+                  class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <i class="ri-shopping-bag-line text-gray-400 ri-2x"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                  Belum ada pesanan
+                </h3>
+                <p class="text-gray-600 mb-6">
+                  Anda belum memiliki riwayat pesanan
+                </p>
+                <a
+                  href="index.html#produk"
+                  class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-90"
+                >
+                  Mulai Belanja
+                </a>
+              </div>
+
+              <!-- Order List (hidden by default, will be shown when there are orders) -->
+              <div id="order-list" class="hidden space-y-4">
+                <!-- Order Item Template -->
+                <div class="border rounded-lg overflow-hidden">
+                  <div class="bg-gray-50 p-4 flex justify-between items-center">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-500">Order #12345</span>
+                        <span
+                          class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                          >Diproses</span
+                        >
+                      </div>
+                      <div class="text-sm text-gray-500">12 Mei 2025</div>
+                    </div>
+                    <div class="text-right">
+                      <div class="font-medium">Total: Rp 1.250.000</div>
+                      <div class="text-sm text-gray-500">12 item</div>
+                    </div>
+                  </div>
+                  <div class="p-4 border-t">
+                    <div class="flex items-center gap-4">
+                      <div
+                        class="w-16 h-16 bg-gray-100 rounded overflow-hidden"
+                      >
+                        <img
+                          src="/api/placeholder/64/64"
+                          alt="Product"
+                          class="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div class="flex-1">
+                        <h4 class="font-medium">Kaos Custom</h4>
+                        <p class="text-sm text-gray-500">12 pcs</p>
+                      </div>
+                      <a href="#" class="text-primary hover:underline"
+                        >Lihat Detail</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Akun Saya Tab -->
+            <div id="content-account" class="tab-content hidden">
+              <h2 class="text-xl font-bold text-gray-900 mb-6">
+                Informasi Akun
+              </h2>
+              <form class="space-y-6" id="profile-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="name" class="block text-gray-700 mb-2"
+                      >Nama Lengkap</label
+                    >
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label for="email" class="block text-gray-700 mb-2"
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100"
+                      readonly
+                    />
+                  </div>
+                  <div>
+                    <label for="phone" class="block text-gray-700 mb-2"
+                      >Nomor Telepon</label
+                    >
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label for="birthdate" class="block text-gray-700 mb-2"
+                      >Tanggal Lahir</label
+                    >
+                    <input
+                      type="date"
+                      id="birthdate"
+                      name="birthdate"
+                      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    Ubah Password
+                  </h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        for="current-password"
+                        class="block text-gray-700 mb-2"
+                        >Password Saat Ini</label
+                      >
+                      <input
+                        type="password"
+                        id="current-password"
+                        name="current-password"
+                        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div></div>
+                    <div>
+                      <label for="new-password" class="block text-gray-700 mb-2"
+                        >Password Baru</label
+                      >
+                      <input
+                        type="password"
+                        id="new-password"
+                        name="new-password"
+                        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        for="confirm-password"
+                        class="block text-gray-700 mb-2"
+                        >Konfirmasi Password Baru</label
+                      >
+                      <input
+                        type="password"
+                        id="confirm-password"
+                        name="confirm-password"
+                        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="flex justify-end">
+                  <button
+                    type="submit"
+                    class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-90"
+                  >
+                    Simpan Perubahan
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Alamat Tab -->
+            <div id="content-address" class="tab-content hidden">
+              <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900">Alamat Saya</h2>
+                <button
+                  class="bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90 flex items-center"
+                >
+                  <i class="ri-add-line mr-2"></i>
+                  Tambah Alamat Baru
+                </button>
+              </div>
+
+              <!-- Empty State -->
+              <div id="empty-address" class="text-center py-12">
+                <div
+                  class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <i class="ri-map-pin-line text-gray-400 ri-2x"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                  Belum ada alamat
+                </h3>
+                <p class="text-gray-600 mb-6">
+                  Anda belum menambahkan alamat pengiriman
+                </p>
+                <button
+                  class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-90 flex items-center mx-auto"
+                >
+                  <i class="ri-add-line mr-2"></i>
+                  Tambah Alamat Baru
+                </button>
+              </div>
+
+              <!-- Address List (hidden by default, will be shown when there are addresses) -->
+              <div id="address-list" class="hidden space-y-4">
+                <!-- Address Item Template -->
+                <div class="border rounded-lg p-4">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 class="font-medium">Rumah</h4>
+                      <span
+                        class="text-xs bg-primary bg-opacity-10 text-primary px-2 py-1 rounded"
+                        >Utama</span
+                      >
+                    </div>
+                    <div class="flex gap-2">
+                      <button class="text-gray-500 hover:text-primary">
+                        <i class="ri-edit-line"></i>
+                      </button>
+                      <button class="text-gray-500 hover:text-red-500">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="text-gray-800 mb-1">John Doe</div>
+                  <div class="text-gray-800 mb-1">+62 812 3456 7890</div>
+                  <div class="text-gray-600">
+                    Jl. Raya Pasar Minggu No. 45, RT 5/RW 2, Kelurahan Pasar
+                    Minggu, Kecamatan Pasar Minggu, Jakarta Selatan, DKI
+                    Jakarta, 12540
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8 mt-16">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          <div>
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center text-primary mr-2"
+              >
+                <i class="ri-building-line ri-2x"> </i>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-['Pacifico'] text-2xl text-primary">
+                  Graha
+                </span>
+                <span class="text-xs -mt-1 text-gray-400">
+                  Advertising & Konveksi
+                </span>
+              </div>
+            </div>
+            <p class="text-gray-400 mb-4">
+              Menyediakan jasa pembuatan pakaian custom berkualitas tinggi
+              dengan harga terbaik sejak 2010.
+            </p>
+            <div class="flex space-x-4">
+              <a
+                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary"
+                href="#"
+              >
+                <i class="ri-facebook-fill"> </i>
+              </a>
+              <a
+                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary"
+                href="#"
+              >
+                <i class="ri-instagram-line"> </i>
+              </a>
+              <a
+                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary"
+                href="#"
+              >
+                <i class="ri-twitter-x-line"> </i>
+              </a>
+              <a
+                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary"
+                href="#"
+              >
+                <i class="ri-youtube-line"> </i>
+              </a>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Produk Kami</h3>
+            <ul class="space-y-2">
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Kaos Custom
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Polo Shirt
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Kemeja
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Jaket & Hoodie
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Seragam Kerja
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Jersey Olahraga
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Informasi</h3>
+            <ul class="space-y-2">
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Tentang Kami
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Cara Pemesanan
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Metode Pembayaran
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Pengiriman
+                </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#"> FAQ </a>
+              </li>
+              <li>
+                <a class="text-gray-400 hover:text-primary" href="#">
+                  Syarat & Ketentuan
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Kontak Kami</h3>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <div class="w-5 h-5 flex items-center justify-center mr-3 mt-1">
+                  <i class="ri-map-pin-line text-primary"> </i>
+                </div>
+                <span class="text-gray-400">
+                  Jl. Raya Pasar Minggu No. 45, Jakarta Selatan, DKI Jakarta
+                  12540
+                </span>
+              </li>
+              <li class="flex items-center">
+                <div class="w-5 h-5 flex items-center justify-center mr-3">
+                  <i class="ri-phone-line text-primary"> </i>
+                </div>
+                <span class="text-gray-400"> +62 21 7654 3210 </span>
+              </li>
+              <li class="flex items-center">
+                <div class="w-5 h-5 flex items-center justify-center mr-3">
+                  <i class="ri-whatsapp-line text-primary"> </i>
+                </div>
+                <span class="text-gray-400"> +62 812 3456 7890 </span>
+              </li>
+              <li class="flex items-center">
+                <div class="w-5 h-5 flex items-center justify-center mr-3">
+                  <i class="ri-mail-line text-primary"> </i>
+                </div>
+                <span class="text-gray-400"> info@grahaadvertising.com </span>
+              </li>
+            </ul>
+            <h3 class="text-lg font-semibold mt-6 mb-4">Jam Operasional</h3>
+            <p class="text-gray-400">Senin - Sabtu: 08:00 - 17:00 WIB</p>
+            <p class="text-gray-400">Minggu & Hari Libur: Tutup</p>
+          </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <p class="text-gray-400 mb-4 md:mb-0">
+              © 2025 Graha Advertising & Konveksi. Hak Cipta Dilindungi.
+            </p>
+            <div class="flex space-x-4">
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-visa-line ri-lg"> </i>
+              </div>
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-mastercard-line ri-lg"> </i>
+              </div>
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-bank-card-line ri-lg"> </i>
+              </div>
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-paypal-line ri-lg"> </i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div
+      class="cart-modal fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl z-50 hidden"
+      id="cart-modal"
+    >
+      <div class="flex flex-col h-full">
+        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+          <h3 class="text-lg font-semibold flex items-center">
+            <i class="ri-shopping-cart-line mr-2"> </i>
+            Keranjang Belanja
+          </h3>
+          <button class="text-gray-500 hover:text-gray-700" id="close-cart">
+            <i class="ri-close-line ri-lg"> </i>
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="cart-items">
+          <!-- Cart items will be dynamically added here -->
+        </div>
+        <div class="border-t p-4 bg-gray-50">
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-600"> Subtotal: </span>
+            <span class="font-semibold" id="cart-subtotal"> Rp 0 </span>
+          </div>
+          <div class="flex justify-between mb-4">
+            <span class="text-gray-600"> Diskon: </span>
+            <span class="font-semibold text-primary" id="cart-discount">
+              Rp 0
+            </span>
+          </div>
+          <div class="flex justify-between mb-4">
+            <span class="font-bold"> Total: </span>
+            <span class="font-bold" id="cart-total"> Rp 0 </span>
+          </div>
+          <a href="#">
+            <button
+              class="w-full bg-primary text-white py-3 !rounded-button hover:bg-opacity-90 flex items-center justify-center"
+              id="checkout-button"
+            >
+              <i class="ri-shopping-bag-line mr-2"> </i>
+              Checkout
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Utility functions for localStorage
+      function showNotification(message, isError = false) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `fixed top-4 right-4 px-4 py-2 rounded shadow-lg transition-opacity duration-300 ${
+          isError ? 'bg-red-500' : 'bg-green-500'
+        } text-white opacity-100 pointer-events-auto`;
+        
+        setTimeout(() => {
+          notification.classList.add('opacity-0', 'pointer-events-none');
+        }, 3000);
+      }
+
+      function getUserData() {
+        try {
+          // Coba ambil dari key 'userData' dulu
+          let userData = localStorage.getItem('userData');
+          if (userData) {
+            return JSON.parse(userData);
+          }
+          
+          // Jika tidak ada, coba dari key 'user'
+          userData = localStorage.getItem('user');
+          if (userData) {
+            return JSON.parse(userData);
+          }
+          
+          // Jika masih tidak ada, coba semua key yang ada
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key !== 'authToken' && key !== 'cache-sprite-plyr' && key !== 'templateCustomizer-vertical-menu-template--Style') {
+              try {
+                const data = JSON.parse(localStorage.getItem(key));
+                if (data && (data.email || data.name)) {
+                  return data;
+                }
+              } catch (e) {
+                // Ignore invalid JSON
+                continue;
+              }
+            }
+          }
+          
+          return null;
+        } catch (error) {
+          console.error('Error getting user data:', error);
+          return null;
+        }
+      }
+
+      function requireAuth() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          window.location.href = 'login.html';
+          return false;
+        }
+        return true;
+      }
+
+      function updateCartDisplay() {
+        // Placeholder for cart functionality
+        const cartCount = document.getElementById('cart-count');
+        if (cartCount) {
+          cartCount.textContent = '0';
+        }
+      }
+
+      function initCartEventListeners() {
+        const cartButton = document.getElementById('cart-button');
+        const cartModal = document.getElementById('cart-modal');
+        const closeCart = document.getElementById('close-cart');
+
+        if (cartButton && cartModal) {
+          cartButton.addEventListener('click', () => {
+            cartModal.classList.remove('hidden');
+          });
+        }
+
+        if (closeCart && cartModal) {
+          closeCart.addEventListener('click', () => {
+            cartModal.classList.add('hidden');
+          });
+        }
+      }
+
+      // Tab switching function
+      function openProfileTab(tabName) {
+        // Hide all tab content
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach((content) => {
+          content.classList.add('hidden');
+        });
+
+        // Show selected tab content
+        const selectedTab = document.getElementById(`content-${tabName}`);
+        if (selectedTab) {
+          selectedTab.classList.remove('hidden');
+        }
+
+        // Update tab buttons
+        const tabButtons = document.querySelectorAll('[id^="tab-"]');
+        tabButtons.forEach((button) => {
+          button.classList.remove('border-primary', 'text-primary');
+          button.classList.add('border-transparent');
+        });
+
+        const activeTab = document.getElementById(`tab-${tabName}`);
+        if (activeTab) {
+          activeTab.classList.add('border-primary', 'text-primary');
+          activeTab.classList.remove('border-transparent');
+        }
+      }
+
+      // Make openProfileTab available globally
+      window.openProfileTab = openProfileTab;
+
+      // Main initialization
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, checking authentication...');
+        
+        // Check authentication
+        if (!requireAuth()) {
+          return;
+        }
+
+        // Get user data from localStorage
+        const userData = getUserData();
+        console.log('Retrieved user data:', userData);
+
+        if (userData) {
+          // Update profile header
+          const userNameElement = document.getElementById('user-name');
+          const userEmailElement = document.getElementById('user-email');
+          const profileNameElement = document.getElementById('profile-name');
+
+          // Tentukan nama yang akan ditampilkan
+          let displayName = userData.name || userData.username || userData.email?.split('@')[0] || 'Pengguna';
+          let displayEmail = userData.email || 'Tidak ada email';
+
+          if (userNameElement) {
+            userNameElement.textContent = displayName;
+          }
+          
+          if (userEmailElement) {
+            userEmailElement.textContent = displayEmail;
+          }
+          
+          if (profileNameElement) {
+            profileNameElement.textContent = displayName;
+          }
+
+          // Populate form fields in "Akun Saya" tab
+          const nameInput = document.getElementById('name');
+          const emailInput = document.getElementById('email');
+          const phoneInput = document.getElementById('phone');
+          const birthdateInput = document.getElementById('birthdate');
+
+          if (nameInput) {
+            nameInput.value = userData.name || userData.username || '';
+          }
+          
+          if (emailInput) {
+            emailInput.value = userData.email || '';
+          }
+          
+          if (phoneInput) {
+            phoneInput.value = userData.phone || userData.phone_number || userData.phoneNumber || '';
+          }
+          
+          if (birthdateInput && userData.birthdate) {
+            birthdateInput.value = userData.birthdate;
+          }
+
+          showNotification('Data profil berhasil dimuat!');
+        } else {
+          console.error('Tidak ada data pengguna yang ditemukan di localStorage');
+          showNotification('Gagal memuat data pengguna. Silakan login ulang.', true);
+          
+          // Redirect to login after a delay
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+        }
+
+        // Initialize cart
+        updateCartDisplay();
+        initCartEventListeners();
+
+        // Handle profile form submission
+        const profileForm = document.getElementById('profile-form');
+        if (profileForm) {
+          profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(profileForm);
+            const updatedData = {
+              ...userData,
+              name: formData.get('name'),
+              phone: formData.get('phone'),
+              birthdate: formData.get('birthdate')
+            };
+
+            // Update localStorage
+            localStorage.setItem('userData', JSON.stringify(updatedData));
+            
+            // Update display
+            const userNameElement = document.getElementById('user-name');
+            const profileNameElement = document.getElementById('profile-name');
+            
+            if (userNameElement) {
+              userNameElement.textContent = updatedData.name || updatedData.email?.split('@')[0] || 'Pengguna';
+            }
+            
+            if (profileNameElement) {
+              profileNameElement.textContent = updatedData.name || updatedData.email?.split('@')[0] || 'Pengguna';
+            }
+
+            showNotification('Profil berhasil diperbarui!');
+          });
+        }
+
+        // Handle logout (if profile button is clicked and user wants to logout)
+        const profileButton = document.getElementById('profile-button');
+        if (profileButton) {
+          profileButton.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (confirm('Apakah Anda ingin logout?')) {
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('userData');
+              localStorage.removeItem('user');
+              window.location.href = 'login.html';
+            }
+          });
+        }
+      });
+
+      // Debug function to check localStorage contents
+      function debugLocalStorage() {
+        console.log('=== Debug localStorage ===');
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          console.log(`${key}:`, value);
+        }
+        console.log('=== End Debug ===');
+      }
+
+      // Call debug function (you can remove this in production)
+      debugLocalStorage();
+    </script>
+  </body>
+</html>
