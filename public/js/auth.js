@@ -131,7 +131,7 @@ async function registerUser(event) {
   }
 
   if (password.length < 6) {
-    showError("register", "Password minimal 6 karakter.")
+    showError("register", "Password minimal 16 karakter.")
     setLoading("register", false)
     return
   }
