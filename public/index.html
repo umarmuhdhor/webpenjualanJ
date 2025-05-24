@@ -260,7 +260,7 @@
   </section>
 
   <!-- Produk Kami Section -->
-<section class="py-12">
+<section class="py-12" id='produk'>
   <div class="container mx-auto px-4">
     <h2 class="text-3xl font-bold text-center">Produk Kami</h2>
     <p class="text-center text-gray-600 mt-2 mb-8">
@@ -277,55 +277,39 @@
 <!-- Include product.js and custom script for rendering products -->
 <script src="product.js"></script>
 <script>
-  // Function to render products dynamically
-  async function renderProducts() {
-    // Fetch product data using the function from product.js
-    const productData = await Product.fetchProductData();
-
-    // Get the product list container
+  document.addEventListener('DOMContentLoaded', async () => {
     const productList = document.getElementById('product-list');
-    if (!productList) {
-      console.error('Product list container not found');
-      return;
+
+    try {
+      const response = await fetch('http://localhost:3000/api/barang');
+      const data = await response.json();
+
+      data.barang.forEach(item => {
+        // Buat elemen tautan
+        const link = document.createElement('a');
+        link.href = `product-detail.html?id=${item.id}`;
+        link.className = 'block bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition';
+
+        // Isi elemen kartu produk
+        link.innerHTML = `
+          <img src="${item.url_gambar}" alt="${item.nama_barang}" class="w-full h-48 object-cover rounded-md mb-4">
+          <h2 class="text-lg font-semibold">${item.nama_barang}</h2>
+          <p class="text-gray-600 mb-2">${item.deskripsi}</p>
+          <h3 class="font-semibold mt-2 mb-1">Bahan:</h3>
+          <ul class="list-disc list-inside text-sm text-gray-700">
+            ${item.bahan.map(b => `<li><strong>${b.nama_bahan}</strong>: ${b.deskripsi}</li>`).join('')}
+          </ul>
+        `;
+
+        productList.appendChild(link);
+      });
+    } catch (error) {
+      console.error('Gagal mengambil data barang:', error);
+      productList.innerHTML = '<p class="text-red-500">Gagal memuat produk.</p>';
     }
-
-    // Clear existing content
-    productList.innerHTML = '';
-
-    // Iterate through the product data and create product cards
-    Object.values(productData).forEach((product) => {
-      // Create product card HTML matching the original structure
-      const productCard = document.createElement('div');
-      productCard.className = 'bg-white shadow-md rounded-lg overflow-hidden';
-
-      // Construct the inner HTML for the product card
-      productCard.innerHTML = `
-        <div class="relative">
-          <img src="${product.image}" alt="${product.title}" class="w-full h-48 object-cover">
-          <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">New</div>
-        </div>
-        <div class="p-4">
-          <h3 class="text-lg font-semibold">${product.title}</h3>
-          <p class="text-gray-600 text-sm mt-1">${product.description}</p>
-          <div class="mt-2">
-            <p class="text-sm text-gray-500">Pilih Bahan:</p>
-            <p class="text-sm">${product.materials.join(', ')}</p>
-          </div>
-          <p class="text-lg font-bold text-primary mt-2">${product.price}</p>
-          <a href="product.html?product=${encodeURIComponent(product.title)}" class="mt-4 inline-block text-primary hover:underline">
-            Lihat Detail
-          </a>
-        </div>
-      `;
-
-      // Append the product card to the container
-      productList.appendChild(productCard);
-    });
-  }
-
-  // Call the render function when the page loads
-  document.addEventListener('DOMContentLoaded', renderProducts);
+  });
 </script>
+
 
   <!-- Pricing Section -->
 
@@ -930,5 +914,38 @@
     });
   });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const productList = document.getElementById('product-list');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/barang');
+      const data = await response.json();
+
+      data.barang.forEach(item => {
+        // Buat elemen kartu produk
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-md p-4';
+
+        card.innerHTML = `
+          <img src="${item.url_gambar}" alt="${item.nama_barang}" class="w-full h-48 object-cover rounded-md mb-4">
+          <h2 class="text-lg font-semibold">${item.nama_barang}</h2>
+          <p class="text-gray-600 mb-2">${item.deskripsi}</p>
+          <h3 class="font-semibold mt-2 mb-1">Bahan:</h3>
+          <ul class="list-disc list-inside text-sm text-gray-700">
+            ${item.bahan.map(b => `<li><strong>${b.nama_bahan}</strong>: ${b.deskripsi}</li>`).join('')}
+          </ul>
+        `;
+
+        productList.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Gagal mengambil data barang:', error);
+      productList.innerHTML = '<p class="text-red-500">Gagal memuat produk.</p>';
+    }
+  });
+</script>
+
 </body>
 </html>

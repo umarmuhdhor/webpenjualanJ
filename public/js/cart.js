@@ -132,7 +132,7 @@ function updateCartCount() {
 }
 
 // Fungsi untuk mengupdate tampilan cart
-function updateCartDisplay() {
+export function updateCartDisplay() {
   const cart = getCart()
   const cartItems = document.getElementById("cart-items")
 
