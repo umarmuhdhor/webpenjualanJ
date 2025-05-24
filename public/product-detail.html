@@ -496,8 +496,21 @@
                   Form Pemesanan 
                 </h3>
                 <form>
+                  <label for="color">Warna:</label>
+                  <select id="color" class="border p-2 rounded w-full">
+                    <option value="">-- Pilih Warna --</option>
+                  </select>
+
+                  <label for="size" class="mt-4 block">Ukuran:</label>
+                  <select id="size" class="border p-2 rounded w-full" disabled>
+                    <option value="">-- Pilih Ukuran --</option>
+                  </select>
+
+                  <label for="quantity" class="mt-4 block">Jumlah:</label>
+                  <input type="number" id="quantity" class="border p-2 rounded w-full" min="0" disabled />
+
                   <!-- Grid: Ukuran -->
-                  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                  <!-- <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                     <div>
                       <label for="size-s" class="block text-gray-700 mb-2"
                         >Ukuran S</label
@@ -558,10 +571,10 @@
                         class="w-full border border-gray-300 rounded p-2"
                       />
                     </div>
-                  </div>
+                  </div> -->
 
                   <!-- Produk & Bahan Otomatis -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
                       <label for="produk" class="block text-gray-700 mb-2"
                         >Produk yang Dipilih</label
@@ -586,10 +599,10 @@
                         <option value="Katun">Katun (100% Katun)</option>
                       </select>
                     </div>
-                  </div>
+                  </div> -->
 
                   <!-- Grid: Jumlah & Produk -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
                     
                     
@@ -599,7 +612,7 @@
                       >
                       </span>
                     </div>
-                  </div>
+                  </div> -->
 
                   <!-- Upload Desain -->
                   <div class="mb-6">
@@ -638,18 +651,18 @@
                   <div class="bg-gray-50 p-4 rounded mb-6">
                     <div class="flex justify-between mb-2">
                       <span class="text-gray-700">Harga Satuan:</span>
-                      <span class="font-medium" id="unit-price">Rp 85.000</span>
+                      <span class="font-medium" id="unit-price"></span>
                     </div>
                     <div class="flex justify-between mb-2">
                       <span class="text-gray-700">Jumlah:</span>
                       <span class="font-medium" id="display-quantity"
-                        >0 pcs</span
+                        ></span
                       >
                     </div>
                     <div class="flex justify-between mb-2">
                       <span class="text-gray-700">Subtotal:</span>
                       <span class="font-medium" id="subtotal"
-                        >Rp 1.020.000</span
+                        ></span
                       >
                     </div>
                     <div class="flex justify-between font-bold text-lg">
@@ -1364,5 +1377,6 @@
         });
       }
     </script>
+    
   </body>
 </html>

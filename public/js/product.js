@@ -122,11 +122,13 @@ async function loadProductDetail() {
   const productDescription = document.getElementById("product-description");
   const productImage = document.getElementById("product-image");
   const productPrice = document.getElementById("product-price");
+  const unitPrice = document.getElementById("unit-price");
   const materialsContainer = document.getElementById("product-materials");
   const produkInput = document.getElementById("produk");
   const bahanSelect = document.getElementById("bahan");
   console.log(product)
   if (productTitle) productTitle.textContent = product.nama_barang;
+  if (unitPrice) unitPrice.textContent = product.harga;
   if (productBreadcrumb) productBreadcrumb.textContent = product.nama_barang;
   if (productDescription) productDescription.textContent = product.deskripsi;
   if (productPrice) productPrice.textContent = product.harga;
@@ -185,6 +187,91 @@ async function fetchProductData() {
     return [];
   }
 }
+async function setMinInputByStock() {
+  const id = new URLSearchParams(window.location.search).get("id");
+  const response = await fetch("http://localhost:3000/api/stock");
+  const datastok = await response.json();
+  const barangList = datastok.stocks;
+  console.log("halo");
+  console.log(barangList);
+  const filtered = barangList.filter(item => item.barang_id === parseInt(id));
+  console.log(filtered);
+  const colors = [...new Set(filtered.map(item => item.color))];
+
+  const colorSelect = document.getElementById("color");
+  console.log(colors);
+  colorSelect.innerHTML = '<option value="">-- Pilih Warna --</option>';
+  colors.forEach(color => {
+    const hasStock = filtered.some(item => item.color === color && item.quantity > 0);
+    if (hasStock) {
+    const option = document.createElement("option");
+    option.value = color;
+    option.textContent = color;
+    colorSelect.appendChild(option);
+    }
+  });
+
+  colorSelect.addEventListener("change", function () {
+    populateSizeOptions(this.value);
+  });
+  document.getElementById("size").addEventListener("change", function () {
+    handleQuantityEnable(colorSelect.value, this.value);
+  });
+  function populateSizeOptions(selectedColor) {
+    const sizeSelect = document.getElementById("size");
+    sizeSelect.disabled = false;
+    sizeSelect.innerHTML = '<option value="">-- Pilih Ukuran --</option>';
+
+    const sizes = barangList
+        .filter(item => item.color === selectedColor && item.barang_id === parseInt(id))
+        .filter(item => item.quantity > 0)
+        .map(item => item.size);
+
+    // Unikkan
+    const uniqueSizes = [...new Set(sizes)];
+
+    uniqueSizes.forEach(size => {
+        const option = document.createElement("option");
+        option.value = size;
+        option.textContent = size;
+        sizeSelect.appendChild(option);
+    });
+
+    // Reset quantity input
+    document.getElementById("quantity").value = "";
+    document.getElementById("quantity").disabled = true;
+  }
+  function handleQuantityEnable(color, size) {
+    const stockItem = barangList.find(item =>
+        item.barang_id === parseInt(id) &&
+        item.color === color &&
+        item.size === size
+    );
+
+    const qtyInput = document.getElementById("quantity");
+    if (stockItem && stockItem.quantity > 0) {
+        qtyInput.disabled = false;
+        qtyInput.max = stockItem.quantity;
+        qtyInput.min = stockItem.min_quantity || 0;
+        qtyInput.placeholder = `Max: ${stockItem.quantity}`;
+    } else {
+        qtyInput.disabled = true;
+        qtyInput.placeholder = "Stok tidak tersedia";
+    }
+  }
+  
+  const displayquantity = document.getElementById("display-quantity");
+  if (displayquantity) displayquantity.textContent = product.nama_barang;
+
+  qtyInput.addEventListener("input", () => {
+  const jumlah = parseInt(qtyInput.value) || 0;
+  const totalHarga = jumlah * hargaBarang;
+  document.getElementById("total-harga").textContent = `Total: Rp${totalHarga.toLocaleString("id-ID")}`;
+  });
+
+}
+
+
 
 // Fungsi untuk change main product image
 function changeMainImage(src) {
@@ -231,6 +318,7 @@ function openTab(tabName) {
 async function initProductPage() {
   // Load product detail
   await loadProductDetail();
+  await setMinInputByStock();
 
   // Add event listener for add to cart button
   const addToCartBtn = document.getElementById("add-to-cart-btn");
@@ -301,7 +389,7 @@ async function initProductPage() {
 
 // Export product functions
 window.Product = {
-  loadDetail: loadProductDetail,
+  loadDetail: loadProductDetail,setMinInputByStock,
   changeMainImage,
   scrollToOrderForm,
   openTab,
