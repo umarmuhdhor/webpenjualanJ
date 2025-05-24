@@ -1,64 +1,7 @@
 let products = [];
 let materials = [];
-let orders = [
-  {
-    id: 1001,
-    user_name: "John Doe",
-    nama_barang: "Jaket Hoodie Premium",
-    quantity: 2,
-    total_price: 500000,
-    status: "pending",
-    created_at: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: 1002,
-    user_name: "Jane Smith",
-    nama_barang: "T-Shirt Custom",
-    quantity: 5,
-    total_price: 375000,
-    status: "processing",
-    created_at: "2024-01-14T14:20:00Z",
-  },
-  {
-    id: 1003,
-    user_name: "Bob Johnson",
-    nama_barang: "Topi Baseball",
-    quantity: 1,
-    total_price: 150000,
-    status: "completed",
-    created_at: "2024-01-13T09:15:00Z",
-  },
-];
-
-let stocks = [
-  {
-    id: 1,
-    nama_barang: "Jaket Hoodie Premium",
-    color: "Hitam",
-    size: "L",
-    quantity: 25,
-    description: "Restock jaket hoodie warna hitam",
-    created_at: "2024-01-15T08:00:00Z",
-  },
-  {
-    id: 2,
-    nama_barang: "T-Shirt Custom",
-    color: "Putih",
-    size: "M",
-    quantity: 50,
-    description: "Stok awal t-shirt putih",
-    created_at: "2024-01-14T10:30:00Z",
-  },
-  {
-    id: 3,
-    nama_barang: "Topi Baseball",
-    color: "Navy",
-    size: "One Size",
-    quantity: 15,
-    description: "Topi baseball navy blue",
-    created_at: "2024-01-13T15:45:00Z",
-  },
-];
+let orders = [];
+let stocks = [];
 
 // Utility Functions
 function showNotification(message, type = "success") {
@@ -109,7 +52,7 @@ function switchTab(tabName) {
 
 // Product Functions
 async function fetchProducts() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return [];
@@ -148,6 +91,7 @@ async function renderProducts() {
           <div>
             <h3 class="font-semibold text-lg">${product.nama_barang}</h3>
             <p class="text-gray-600 text-sm">${product.deskripsi || ""}</p>
+            <p class="text-gray-800 font-medium">Rp ${product.harga.toLocaleString("id-ID")}</p>
             <div class="mt-2">
               <span class="text-xs bg-gray-100 px-2 py-1 rounded">${bahanNames}</span>
             </div>
@@ -187,6 +131,11 @@ function getProductForm(product = null) {
           class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
       </div>
       <div>
+        <label class="block text-gray-700 mb-2">Harga (Rp)</label>
+        <input type="number" id="harga" value="${product ? product.harga : ""}" min="0" 
+          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <div>
         <label class="block text-gray-700 mb-2">URL Gambar</label>
         <input type="text" id="url_gambar" value="${product ? product.url_gambar : ""}" 
           placeholder="/placeholder.svg?height=200&width=200"
@@ -216,7 +165,7 @@ function getProductForm(product = null) {
 }
 
 async function addProduct() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
@@ -234,6 +183,7 @@ async function addProduct() {
 
     const newProduct = {
       nama_barang: document.getElementById("nama_barang").value,
+      harga: parseInt(document.getElementById("harga").value),
       url_gambar: document.getElementById("url_gambar").value || "/placeholder.svg?height=200&width=200",
       deskripsi: document.getElementById("deskripsi").value,
       bahan_ids: selectedBahanIds,
@@ -265,7 +215,7 @@ async function addProduct() {
 }
 
 async function editProduct(id) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
@@ -286,6 +236,7 @@ async function editProduct(id) {
 
     const updatedProduct = {
       nama_barang: document.getElementById("nama_barang").value,
+      harga: parseInt(document.getElementById("harga").value),
       url_gambar: document.getElementById("url_gambar").value || "/placeholder.svg?height=200&width=200",
       deskripsi: document.getElementById("deskripsi").value,
       bahan_ids: selectedBahanIds,
@@ -317,7 +268,7 @@ async function editProduct(id) {
 }
 
 async function deleteProduct(id) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
@@ -348,7 +299,7 @@ async function deleteProduct(id) {
 
 // Material Functions
 async function fetchMaterials() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return [];
@@ -430,7 +381,7 @@ function getMaterialForm(material = null) {
 }
 
 async function addMaterial() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
@@ -472,7 +423,7 @@ async function addMaterial() {
 }
 
 async function editMaterial(id) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
@@ -517,7 +468,7 @@ async function editMaterial(id) {
 }
 
 async function deleteMaterial(id) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
@@ -547,7 +498,40 @@ async function deleteMaterial(id) {
 }
 
 // Order Functions
-function renderOrders(filteredOrders = null) {
+async function fetchOrders() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return [];
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/orders', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      orders = data.orders || [];
+      return orders;
+    } else if (response.status === 401) {
+      showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      return [];
+    } else {
+      showNotification(data.error || 'Gagal mengambil data pesanan', 'error');
+      return [];
+    }
+  } catch (error) {
+    showNotification('Terjadi kesalahan saat mengambil data pesanan', 'error');
+    return [];
+  }
+}
+
+async function renderOrders(filteredOrders = null) {
+  await fetchOrders();
   const ordersToRender = filteredOrders || orders;
   const table = document.getElementById("orders-table");
   table.innerHTML = ordersToRender
@@ -588,12 +572,33 @@ function renderOrders(filteredOrders = null) {
     .join("");
 }
 
-function updateOrderStatus(orderId, newStatus) {
-  const index = orders.findIndex((o) => o.id === orderId);
-  if (index !== -1) {
-    orders[index].status = newStatus;
-    renderOrders();
-    showNotification("Status pesanan berhasil diupdate!");
+async function updateOrderStatus(orderId, newStatus) {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      await renderOrders();
+      showNotification("Status pesanan berhasil diupdate!");
+    } else if (response.status === 401) {
+      showNotification('Token tidak valid. Silakan login ulang.', 'error');
+    } else {
+      showNotification(data.error || 'Gagal mengupdate status pesanan', 'error');
+    }
+  } catch (error) {
+    showNotification('Terjadi kesalahan saat mengupdate status pesanan', 'error');
   }
 }
 
@@ -654,7 +659,40 @@ function getFilteredOrders() {
 }
 
 // Stock Functions
-function renderStocks() {
+async function fetchStocks() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return [];
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/stock', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      stocks = data.stocks || [];
+      return stocks;
+    } else if (response.status === 401) {
+      showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      return [];
+    } else {
+      showNotification(data.error || 'Gagal mengambil data stok', 'error');
+      return [];
+    }
+  } catch (error) {
+    showNotification('Terjadi kesalahan saat mengambil data stok', 'error');
+    return [];
+  }
+}
+
+async function renderStocks() {
+  await fetchStocks();
   const table = document.getElementById("stocks-table");
   table.innerHTML = stocks
     .map(
@@ -741,41 +779,69 @@ function getStockForm(stock = null) {
   `;
 }
 
-function addStock() {
+async function addStock() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return;
+  }
+
+  await fetchProducts();
   openModal("Tambah Stok Barang", getStockForm());
 
-  document.getElementById("stock-form").addEventListener("submit", function (e) {
+  document.getElementById("stock-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const newStock = {
-      id: stocks.length + 1,
       nama_barang: document.getElementById("nama_barang").value,
       color: document.getElementById("color").value,
       size: document.getElementById("size").value,
       quantity: parseInt(document.getElementById("quantity").value),
       description: document.getElementById("description").value,
-      created_at: new Date().toISOString(),
     };
 
-    stocks.push(newStock);
-    renderStocks();
-    closeModal();
-    showNotification("Stok berhasil ditambahkan!");
+    try {
+      const response = await fetch('http://localhost:3000/api/stock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newStock),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        await renderStocks();
+        closeModal();
+        showNotification("Stok berhasil ditambahkan!");
+      } else if (response.status === 401) {
+        showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      } else {
+        showNotification(data.error || 'Gagal menambahkan stok', 'error');
+      }
+    } catch (error) {
+      showNotification('Terjadi kesalahan saat menambahkan stok', 'error');
+    }
   });
 }
 
-function editStock(id) {
+async function editStock(id) {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return;
+  }
+
+  await fetchProducts();
   const stock = stocks.find((s) => s.id === id);
   if (!stock) return;
 
   openModal("Edit Stok", getStockForm(stock));
 
-  document.getElementById("stock-form").addEventListener("submit", function (e) {
+  document.getElementById("stock-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const index = stocks.findIndex((s) => s.id === id);
-    stocks[index] = {
-      ...stocks[index],
+    const updatedStock = {
       nama_barang: document.getElementById("nama_barang").value,
       color: document.getElementById("color").value,
       size: document.getElementById("size").value,
@@ -783,17 +849,58 @@ function editStock(id) {
       description: document.getElementById("description").value,
     };
 
-    renderStocks();
-    closeModal();
-    showNotification("Stok berhasil diupdate!");
+    try {
+      const response = await fetch(`http://localhost:3000/api/stock/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedStock),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        await renderStocks();
+        closeModal();
+        showNotification("Stok berhasil diupdate!");
+      } else if (response.status === 401) {
+        showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      } else {
+        showNotification(data.error || 'Gagal mengupdate stok', 'error');
+      }
+    } catch (error) {
+      showNotification('Terjadi kesalahan saat mengupdate stok', 'error');
+    }
   });
 }
 
-function deleteStock(id) {
+async function deleteStock(id) {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return;
+  }
+
   if (confirm("Apakah Anda yakin ingin menghapus stok ini?")) {
-    stocks = stocks.filter((s) => s.id !== id);
-    renderStocks();
-    showNotification("Stok berhasil dihapus!");
+    try {
+      const response = await fetch(`http://localhost:3000/api/stock/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        await renderStocks();
+        showNotification("Stok berhasil dihapus!");
+      } else if (response.status === 401) {
+        showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      } else {
+        showNotification(data.error || 'Gagal menghapus stok', 'error');
+      }
+    } catch (error) {
+      showNotification('Terjadi kesalahan saat menghapus stok', 'error');
+    }
   }
 }
 
@@ -844,4 +951,4 @@ document.addEventListener("DOMContentLoaded", function () {
   renderMaterials();
   renderOrders();
   renderStocks();
-});
+});``
