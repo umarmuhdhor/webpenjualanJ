@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 // Ambil daftar barang beserta bahan terkait
 const getBarang = (req, res) => {
-  db.all('SELECT id, nama_barang, url_gambar, deskripsi FROM barang', [], (err, barang) => {
+  db.all('SELECT id, nama_barang, url_gambar, deskripsi, harga FROM barang', [], (err, barang) => {
     if (err) {
       return res.status(500).json({ error: 'Gagal mengambil barang', details: err.message });
     }
@@ -28,7 +28,7 @@ const getBarang = (req, res) => {
 const addBarang = (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya untuk admin' });
 
-  const { nama_barang, url_gambar, deskripsi, bahan_ids } = req.body;
+  const { nama_barang, url_gambar, deskripsi, bahan_ids, harga } = req.body;
 
   if (!nama_barang || typeof nama_barang !== 'string' || nama_barang.length > 100) {
     return res.status(400).json({ error: 'nama_barang harus berupa string maksimal 100 karakter' });
@@ -44,6 +44,9 @@ const addBarang = (req, res) => {
   }
   if (bahan_ids.some(id => isNaN(id) || id <= 0)) {
     return res.status(400).json({ error: 'bahan_ids harus berisi ID bahan yang valid' });
+  }
+  if (!harga || isNaN(harga) || harga <= 0) {
+    return res.status(400).json({ error: 'harga harus berupa angka positif' });
   }
 
   db.run('BEGIN TRANSACTION', (err) => {
@@ -62,8 +65,8 @@ const addBarang = (req, res) => {
       }
 
       db.run(
-        'INSERT INTO barang (nama_barang, url_gambar, deskripsi) VALUES (?, ?, ?)',
-        [nama_barang, url_gambar || null, deskripsi || null],
+        'INSERT INTO barang (nama_barang, url_gambar, deskripsi, harga) VALUES (?, ?, ?, ?)',
+        [nama_barang, url_gambar || null, deskripsi || null, harga],
         function (err) {
           if (err) {
             db.run('ROLLBACK');
@@ -182,7 +185,7 @@ const updateBarang = (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya untuk admin' });
 
   const barangId = req.params.id;
-  const { nama_barang, url_gambar, deskripsi, bahan_ids } = req.body;
+  const { nama_barang, url_gambar, deskripsi, bahan_ids, harga } = req.body;
 
   if (isNaN(barangId) || barangId <= 0) {
     return res.status(400).json({ error: 'ID barang tidak valid' });
@@ -199,6 +202,9 @@ const updateBarang = (req, res) => {
   }
   if (bahan_ids && (!Array.isArray(bahan_ids) || bahan_ids.some(id => isNaN(id) || id <= 0))) {
     return res.status(400).json({ error: 'bahan_ids harus berupa array ID bahan yang valid' });
+  }
+  if (harga !== undefined && (isNaN(harga) || harga <= 0)) {
+    return res.status(400).json({ error: 'harga harus berupa angka positif' });
   }
 
   db.run('BEGIN TRANSACTION', (err) => {
@@ -220,6 +226,7 @@ const updateBarang = (req, res) => {
       if (nama_barang) updates.nama_barang = nama_barang;
       if (url_gambar !== undefined) updates.url_gambar = url_gambar || null;
       if (deskripsi !== undefined) updates.deskripsi = deskripsi || null;
+      if (harga !== undefined) updates.harga = harga;
 
       if (Object.keys(updates).length > 0) {
         const setClause = Object.keys(updates).map(key => `${key} = ?`).join(', ');

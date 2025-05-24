@@ -6,7 +6,7 @@ const ADDITIONAL_COST_PER_DESIGN = 20000;
 
 // Buat pesanan
 const createOrder = (req, res) => {
-  const { barang_id, sizes, quantity, details, unitPrice, designs } = req.body;
+  const { barang_id, sizes, quantity, details, designs } = req.body;
 
   if (!quantity || quantity < 12) {
     return res.status(400).json({ error: 'Minimal pesanan adalah 12 pcs' });
@@ -14,10 +14,6 @@ const createOrder = (req, res) => {
 
   if (!barang_id || isNaN(barang_id)) {
     return res.status(400).json({ error: 'barang_id harus berupa angka yang valid' });
-  }
-
-  if (!unitPrice || isNaN(unitPrice) || unitPrice <= 0) {
-    return res.status(400).json({ error: 'unitPrice harus berupa angka positif' });
   }
 
   if (!designs || !Array.isArray(designs) || designs.length === 0) {
@@ -67,7 +63,7 @@ const createOrder = (req, res) => {
       return res.status(500).json({ error: 'Gagal memulai transaksi', details: err.message });
     }
 
-    db.get('SELECT id FROM barang WHERE id = ?', [barang_id], (err, barang) => {
+    db.get('SELECT id, harga FROM barang WHERE id = ?', [barang_id], (err, barang) => {
       if (err) {
         db.run('ROLLBACK');
         return res.status(500).json({ error: 'Gagal memeriksa barang', details: err.message });
@@ -111,7 +107,7 @@ const createOrder = (req, res) => {
             else totalDesignCost += BASE_COST_SABLON;
           });
 
-          const totalPrice = (quantity * unitPrice) + totalDesignCost;
+          const totalPrice = (quantity * barang.harga) + totalDesignCost;
 
           db.run(
             'INSERT INTO orders (user_id, barang_id, sizes, quantity, details, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
