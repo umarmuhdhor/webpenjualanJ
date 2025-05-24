@@ -1,5 +1,14 @@
 const db = require('../config/db');
 
+const getAllBahan = (req, res) => {
+  db.all('SELECT * FROM bahan', [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Gagal mengambil data bahan', details: err.message });
+    }
+    res.json({ bahan: rows });
+  });
+};
+
 // Tambah bahan baru (hanya admin)
 const addBahan = (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya untuk admin' });
@@ -124,4 +133,4 @@ const updateBahan = (req, res) => {
   );
 };
 
-module.exports = { addBahan, deleteBahan, updateBahan };
+module.exports = { addBahan, deleteBahan, updateBahan, getAllBahan };
