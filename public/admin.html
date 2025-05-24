@@ -1,1396 +1,234 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Admin Dashboard - Graha Advertising</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect" />
-  <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&amp;display=swap" rel="stylesheet" />
-  
-  <!-- Remix Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet" />
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="styles.css">
-  
-  <!-- Tailwind Config -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#7B1114',
-            secondary: '#6B21A8'
-          },
-          borderRadius: {
-            'none': '0px',
-            'sm': '4px',
-            DEFAULT: '8px',
-            'md': '12px',
-            'lg': '16px',
-            'xl': '20px',
-            '2xl': '24px',
-            '3xl': '32px',
-            'full': '9999px',
-            'button': '8px'
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Graha Advertising</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7B1114',
+                        secondary: '#6B21A8'
+                    }
+                }
+            }
         }
-      }
-    }
-  </script>
+    </script>
 </head>
-
 <body class="bg-gray-100">
-  <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300">
-    <!-- Pesan notifikasi akan masuk sini -->
-  </div>
-
-  <!-- Admin Layout -->
-  <div class="flex h-screen overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="bg-gray-900 text-white w-64 flex-shrink-0 hidden md:block">
-      <div class="p-4 border-b border-gray-800">
-        <div class="flex items-center">
-          <div class="w-10 h-10 flex items-center justify-center text-primary mr-2">
-            <i class="ri-building-line ri-2x"></i>
-          </div>
-          <div class="flex flex-col">
-            <span class="font-['Pacifico'] text-2xl text-primary">Graha</span>
-            <span class="text-xs -mt-1 text-gray-400">Admin Panel</span>
-          </div>
-        </div>
-      </div>
-      <nav class="p-4">
-        <ul class="space-y-2">
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-white bg-primary" data-section="dashboard">
-              <i class="ri-dashboard-line mr-3"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="products">
-              <i class="ri-t-shirt-line mr-3"></i>
-              <span>Produk</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="orders">
-              <i class="ri-shopping-bag-line mr-3"></i>
-              <span>Pesanan</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="users">
-              <i class="ri-user-line mr-3"></i>
-              <span>Pengguna</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="settings">
-              <i class="ri-settings-line mr-3"></i>
-              <span>Pengaturan</span>
-            </a>
-          </li>
-          <li class="pt-6 mt-6 border-t border-gray-800">
-            <a href="index.html" class="flex items-center p-2 rounded hover:bg-gray-800">
-              <i class="ri-arrow-left-line mr-3"></i>
-              <span>Kembali ke Website</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-red-400" onclick="logoutAdmin(event)">
-              <i class="ri-logout-box-line mr-3"></i>
-              <span>Keluar</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- Top Header -->
-      <header class="bg-white shadow-sm">
-        <div class="flex items-center justify-between p-4">
-          <div class="flex items-center">
-            <button class="md:hidden text-gray-700 mr-4" id="sidebar-toggle">
-              <i class="ri-menu-line ri-2x"></i>
-            </button>
-            <h1 class="text-xl font-semibold text-gray-800" id="page-title">Dashboard</h1>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="relative">
-              <input type="text" placeholder="Cari..." class="border rounded-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
-              <i class="ri-search-line absolute left-3 top-2.5 text-gray-400"></i>
-            </div>
-            <div class="relative">
-              <button class="relative p-2 rounded-full hover:bg-gray-100">
-                <i class="ri-notification-3-line text-gray-600"></i>
-                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-            </div>
-            <div class="flex items-center">
-              <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
-                <i class="ri-user-line text-gray-600"></i>
-              </div>
-              <span class="text-gray-700 font-medium" id="admin-name">Admin</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Main Content Area -->
-      <main class="flex-1 overflow-y-auto p-4">
-        <!-- Dashboard Section -->
-        <section id="dashboard-section" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                  <i class="ri-shopping-bag-line text-blue-500 ri-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-gray-500 text-sm">Total Pesanan</h3>
-                  <p class="text-2xl font-bold">124</p>
-                </div>
-              </div>
-              <div class="mt-4 flex items-center text-sm">
-                <span class="text-green-500 flex items-center">
-                  <i class="ri-arrow-up-line mr-1"></i>
-                  12%
-                </span>
-                <span class="text-gray-500 ml-2">dari bulan lalu</span>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                  <i class="ri-money-dollar-circle-line text-green-500 ri-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-gray-500 text-sm">Pendapatan</h3>
-                  <p class="text-2xl font-bold">Rp 24.500.000</p>
-                </div>
-              </div>
-              <div class="mt-4 flex items-center text-sm">
-                <span class="text-green-500 flex items-center">
-                  <i class="ri-arrow-up-line mr-1"></i>
-                  8%
-                </span>
-                <span class="text-gray-500 ml-2">dari bulan lalu</span>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                  <i class="ri-user-line text-purple-500 ri-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-gray-500 text-sm">Pelanggan</h3>
-                  <p class="text-2xl font-bold">85</p>
-                </div>
-              </div>
-              <div class="mt-4 flex items-center text-sm">
-                <span class="text-green-500 flex items-center">
-                  <i class="ri-arrow-up-line mr-1"></i>
-                  24%
-                </span>
-                <span class="text-gray-500 ml-2">dari bulan lalu</span>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                  <i class="ri-t-shirt-line text-yellow-500 ri-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-gray-500 text-sm">Produk</h3>
-                  <p class="text-2xl font-bold">24</p>
-                </div>
-              </div>
-              <div class="mt-4 flex items-center text-sm">
-                <span class="text-green-500 flex items-center">
-                  <i class="ri-arrow-up-line mr-1"></i>
-                  4%
-                </span>
-                <span class="text-gray-500 ml-2">dari bulan lalu</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white rounded-lg shadow-sm p-6 lg:col-span-2">
-              <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-semibold">Penjualan Bulanan</h2>
-                <div class="relative">
-                  <select class="border rounded px-3 py-1 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Tahun 2025</option>
-                    <option>Tahun 2024</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-              </div>
-              <div class="h-64 flex items-center justify-center">
-                <img src="https://readdy.ai/api/search-image?query=sales%20chart%20graph%20with%20monthly%20data%20showing%20growth%20trend%20professional%20business%20visualization&width=800&height=300" alt="Sales Chart" class="max-w-full h-auto">
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <h2 class="text-lg font-semibold mb-6">Produk Terlaris</h2>
-              <div class="space-y-4">
-                <div class="flex items-center">
-                  <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                    <img src="https://i.pinimg.com/736x/f7/6d/83/f76d832d5e6d66a3fe44c162140e77f6.jpg" alt="Kaos Custom" class="w-full h-full object-cover">
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="font-medium">Kaos Custom</h4>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-500">342 terjual</span>
-                      <span class="text-primary font-medium">Rp 85.000</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="flex items-center">
-                  <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                    <img src="https://i.pinimg.com/736x/6a/54/39/6a5439f9bc0f3e76dd7123d7ffa5fc06.jpg" alt="Jaket Custom" class="w-full h-full object-cover">
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="font-medium">Jaket Custom</h4>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-500">156 terjual</span>
-                      <span class="text-primary font-medium">Rp 150.000</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="flex items-center">
-                  <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                    <img src="https://i.pinimg.com/736x/31/c4/0a/31c40aee086c878bfadabdea4339736e.jpg" alt="Polo Custom" class="w-full h-full object-cover">
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="font-medium">Polo Custom</h4>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-500">98 terjual</span>
-                      <span class="text-primary font-medium">Rp 95.000</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="flex items-center">
-                  <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                    <img src="https://i.pinimg.com/736x/2b/2e/7f/2b2e7f38dedb7378a1cce1e833ce7dc4.jpg" alt="Kemeja Custom" class="w-full h-full object-cover">
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="font-medium">Kemeja Custom</h4>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-500">76 terjual</span>
-                      <span class="text-primary font-medium">Rp 120.000</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-6">
-                <a href="#" class="text-primary hover:underline text-sm flex items-center">
-                  Lihat semua produk
-                  <i class="ri-arrow-right-line ml-1"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white rounded-lg shadow-sm p-6 lg:col-span-2">
-              <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-semibold">Pesanan Terbaru</h2>
-                <a href="#" class="text-primary hover:underline text-sm">Lihat semua</a>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full">
-                  <thead>
-                    <tr class="border-b">
-                      <th class="py-3 px-4 text-left">ID Pesanan</th>
-                      <th class="py-3 px-4 text-left">Pelanggan</th>
-                      <th class="py-3 px-4 text-left">Produk</th>
-                      <th class="py-3 px-4 text-left">Total</th>
-                      <th class="py-3 px-4 text-left">Status</th>
-                      <th class="py-3 px-4 text-left">Tanggal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">#ORD-5142</td>
-                      <td class="py-3 px-4">Ahmad Faisal</td>
-                      <td class="py-3 px-4">Kaos Custom (24)</td>
-                      <td class="py-3 px-4">Rp 2.040.000</td>
-                      <td class="py-3 px-4">
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Selesai</span>
-                      </td>
-                      <td class="py-3 px-4">20 Mei 2025</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">#ORD-5141</td>
-                      <td class="py-3 px-4">Dewi Anggraini</td>
-                      <td class="py-3 px-4">Kemeja Custom (45)</td>
-                      <td class="py-3 px-4">Rp 5.400.000</td>
-                      <td class="py-3 px-4">
-                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Diproses</span>
-                      </td>
-                      <td class="py-3 px-4">19 Mei 2025</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">#ORD-5140</td>
-                      <td class="py-3 px-4">Rudi Hartono</td>
-                      <td class="py-3 px-4">Jersey Custom (18)</td>
-                      <td class="py-3 px-4">Rp 1.800.000</td>
-                      <td class="py-3 px-4">
-                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Dikirim</span>
-                      </td>
-                      <td class="py-3 px-4">18 Mei 2025</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">#ORD-5139</td>
-                      <td class="py-3 px-4">Siti Nuraini</td>
-                      <td class="py-3 px-4">Jaket Custom (12)</td>
-                      <td class="py-3 px-4">Rp 1.800.000</td>
-                      <td class="py-3 px-4">
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Selesai</span>
-                      </td>
-                      <td class="py-3 px-4">17 Mei 2025</td>
-                    </tr>
-                    <tr>
-                      <td class="py-3 px-4">#ORD-5138</td>
-                      <td class="py-3 px-4">Budi Santoso</td>
-                      <td class="py-3 px-4">Polo Custom (30)</td>
-                      <td class="py-3 px-4">Rp 2.850.000</td>
-                      <td class="py-3 px-4">
-                        <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Dibatalkan</span>
-                      </td>
-                      <td class="py-3 px-4">16 Mei 2025</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <h2 class="text-lg font-semibold mb-6">Aktivitas Terbaru</h2>
-              <div class="space-y-6">
-                <div class="flex">
-                  <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="ri-shopping-bag-line text-blue-500"></i>
-                  </div>
-                  <div>
-                    <p class="text-gray-800">Pesanan baru <span class="font-medium">#ORD-5142</span> dari Ahmad Faisal</p>
-                    <p class="text-gray-500 text-sm">20 Mei 2025, 14:30</p>
-                  </div>
-                </div>
-                
-                <div class="flex">
-                  <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="ri-check-line text-green-500"></i>
-                  </div>
-                  <div>
-                    <p class="text-gray-800">Pesanan <span class="font-medium">#ORD-5139</span> telah selesai</p>
-                    <p class="text-gray-500 text-sm">20 Mei 2025, 11:15</p>
-                  </div>
-                </div>
-                
-                <div class="flex">
-                  <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="ri-truck-line text-yellow-500"></i>
-                  </div>
-                  <div>
-                    <p class="text-gray-800">Pesanan <span class="font-medium">#ORD-5140</span> sedang dikirim</p>
-                    <p class="text-gray-500 text-sm">20 Mei 2025, 09:45</p>
-                  </div>
-                </div>
-                
-                <div class="flex">
-                  <div class="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="ri-user-add-line text-purple-500"></i>
-                  </div>
-                  <div>
-                    <p class="text-gray-800">Pelanggan baru <span class="font-medium">Siti Nuraini</span> telah mendaftar</p>
-                    <p class="text-gray-500 text-sm">19 Mei 2025, 16:20</p>
-                  </div>
-                </div>
-                
-                <div class="flex">
-                  <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="ri-close-line text-red-500"></i>
-                  </div>
-                  <div>
-                    <p class="text-gray-800">Pesanan <span class="font-medium">#ORD-5138</span> dibatalkan</p>
-                    <p class="text-gray-500 text-sm">19 Mei 2025, 10:05</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Products Section -->
-        <section id="products-section" class="hidden space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Manajemen Produk</h2>
-            <button class="bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90 flex items-center">
-              <i class="ri-add-line mr-2"></i>
-              Tambah Produk
-            </button>
-          </div>
-          
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div class="flex items-center">
-                <div class="relative flex-1 md:w-64">
-                  <input type="text" placeholder="Cari produk..." class="w-full border rounded-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
-                  <i class="ri-search-line absolute left-3 top-2.5 text-gray-400"></i>
-                </div>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <div class="relative">
-                  <select class="border rounded px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Semua Kategori</option>
-                    <option>Kaos</option>
-                    <option>Kemeja</option>
-                    <option>Jaket</option>
-                    <option>Jersey</option>
-                    <option>Polo</option>
-                    <option>Hoodie</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-                <div class="relative">
-                  <select class="border rounded px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Semua Status</option>
-                    <option>Aktif</option>
-                    <option>Tidak Aktif</option>
-                    <option>Habis</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-                <button class="border rounded px-3 py-2 hover:bg-gray-50">
-                  <i class="ri-filter-3-line mr-1"></i>
-                  Filter
-                </button>
-              </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr class="bg-gray-50 border-y">
-                    <th class="py-3 px-4 text-left">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span>Produk</span>
-                      </div>
-                    </th>
-                    <th class="py-3 px-4 text-left">Kategori</th>
-                    <th class="py-3 px-4 text-left">Harga</th>
-                    <th class="py-3 px-4 text-left">Status</th>
-                    <th class="py-3 px-4 text-left">Stok</th>
-                    <th class="py-3 px-4 text-left">Terjual</th>
-                    <th class="py-3 px-4 text-left">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                            <img src="https://i.pinimg.com/736x/f7/6d/83/f76d832d5e6d66a3fe44c162140e77f6.jpg" alt="Kaos Custom" class="w-full h-full object-cover">
-                          </div>
-                          <span class="font-medium">Kaos Custom</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Kaos</td>
-                    <td class="py-3 px-4">Rp 85.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">∞</td>
-                    <td class="py-3 px-4">342</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                            <img src="https://i.pinimg.com/736x/6a/54/39/6a5439f9bc0f3e76dd7123d7ffa5fc06.jpg" alt="Jaket Custom" class="w-full h-full object-cover">
-                          </div>
-                          <span class="font-medium">Jaket Custom</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Jaket</td>
-                    <td class="py-3 px-4">Rp 150.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">∞</td>
-                    <td class="py-3 px-4">156</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                            <img src="https://i.pinimg.com/736x/31/c4/0a/31c40aee086c878bfadabdea4339736e.jpg" alt="Polo Custom" class="w-full h-full object-cover">
-                          </div>
-                          <span class="font-medium">Polo Custom</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Polo</td>
-                    <td class="py-3 px-4">Rp 95.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">∞</td>
-                    <td class="py-3 px-4">98</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                            <img src="https://i.pinimg.com/736x/2b/2e/7f/2b2e7f38dedb7378a1cce1e833ce7dc4.jpg" alt="Kemeja Custom" class="w-full h-full object-cover">
-                          </div>
-                          <span class="font-medium">Kemeja Custom</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Kemeja</td>
-                    <td class="py-3 px-4">Rp 120.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">∞</td>
-                    <td class="py-3 px-4">76</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                            <img src="https://i.pinimg.com/736x/a8/80/17/a8801742bf6916ab2262ecca92b78515.jpg" alt="Jersey Custom" class="w-full h-full object-cover">
-                          </div>
-                          <span class="font-medium">Jersey Custom</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Jersey</td>
-                    <td class="py-3 px-4">Rp 100.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">∞</td>
-                    <td class="py-3 px-4">64</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden mr-3">
-                            <img src="https://i.pinimg.com/736x/c6/d2/2a/c6d22a2206a39a3cdfed4d9aad088ed0.jpg" alt="Hoodie Custom" class="w-full h-full object-cover">
-                          </div>
-                          <span class="font-medium">Hoodie Custom</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Hoodie</td>
-                    <td class="py-3 px-4">Rp 180.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">∞</td>
-                    <td class="py-3 px-4">42</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="p-4 flex items-center justify-between border-t">
-              <div class="text-gray-600 text-sm">
-                Menampilkan 1-6 dari 24 produk
-              </div>
-              <div class="flex space-x-1">
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50 text-gray-500">
-                  <i class="ri-arrow-left-s-line"></i>
-                </button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border bg-primary text-white">1</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">2</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">3</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">4</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50 text-gray-500">
-                  <i class="ri-arrow-right-s-line"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Orders Section -->
-        <section id="orders-section" class="hidden space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Manajemen Pesanan</h2>
-            <button class="bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90 flex items-center">
-              <i class="ri-add-line mr-2"></i>
-              Tambah Pesanan
-            </button>
-          </div>
-          
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div class="flex items-center">
-                <div class="relative flex-1 md:w-64">
-                  <input type="text" placeholder="Cari pesanan..." class="w-full border rounded-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
-                  <i class="ri-search-line absolute left-3 top-2.5 text-gray-400"></i>
-                </div>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <div class="relative">
-                  <select class="border rounded px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Semua Status</option>
-                    <option>Menunggu Pembayaran</option>
-                    <option>Diproses</option>
-                    <option>Dikirim</option>
-                    <option>Selesai</option>
-                    <option>Dibatalkan</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-                <div class="relative">
-                  <select class="border rounded px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Semua Tanggal</option>
-                    <option>Hari Ini</option>
-                    <option>Minggu Ini</option>
-                    <option>Bulan Ini</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-                <button class="border rounded px-3 py-2 hover:bg-gray-50">
-                  <i class="ri-filter-3-line mr-1"></i>
-                  Filter
-                </button>
-              </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr class="bg-gray-50 border-y">
-                    <th class="py-3 px-4 text-left">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span>ID Pesanan</span>
-                      </div>
-                    </th>
-                    <th class="py-3 px-4 text-left">Pelanggan</th>
-                    <th class="py-3 px-4 text-left">Produk</th>
-                    <th class="py-3 px-4 text-left">Total</th>
-                    <th class="py-3 px-4 text-left">Status</th>
-                    <th class="py-3 px-4 text-left">Tanggal</th>
-                    <th class="py-3 px-4 text-left">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span class="font-medium">#ORD-5142</span>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Ahmad Faisal</td>
-                    <td class="py-3 px-4">Kaos Custom (24)</td>
-                    <td class="py-3 px-4">Rp 2.040.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Selesai</span>
-                    </td>
-                    <td class="py-3 px-4">20 Mei 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-eye-line"></i>
-                        </button>
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span class="font-medium">#ORD-5141</span>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Dewi Anggraini</td>
-                    <td class="py-3 px-4">Kemeja Custom (45)</td>
-                    <td class="py-3 px-4">Rp 5.400.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Diproses</span>
-                    </td>
-                    <td class="py-3 px-4">19 Mei 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-eye-line"></i>
-                        </button>
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span class="font-medium">#ORD-5140</span>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Rudi Hartono</td>
-                    <td class="py-3 px-4">Jersey Custom (18)</td>
-                    <td class="py-3 px-4">Rp 1.800.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Dikirim</span>
-                    </td>
-                    <td class="py-3 px-4">18 Mei 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-eye-line"></i>
-                        </button>
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span class="font-medium">#ORD-5139</span>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Siti Nuraini</td>
-                    <td class="py-3 px-4">Jaket Custom (12)</td>
-                    <td class="py-3 px-4">Rp 1.800.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Selesai</span>
-                    </td>
-                    <td class="py-3 px-4">17 Mei 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-eye-line"></i>
-                        </button>
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span class="font-medium">#ORD-5138</span>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">Budi Santoso</td>
-                    <td class="py-3 px-4">Polo Custom (30)</td>
-                    <td class="py-3 px-4">Rp 2.850.000</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Dibatalkan</span>
-                    </td>
-                    <td class="py-3 px-4">16 Mei 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-eye-line"></i>
-                        </button>
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="p-4 flex items-center justify-between border-t">
-              <div class="text-gray-600 text-sm">
-                Menampilkan 1-5 dari 124 pesanan
-              </div>
-              <div class="flex space-x-1">
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50 text-gray-500">
-                  <i class="ri-arrow-left-s-line"></i>
-                </button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border bg-primary text-white">1</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">2</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">3</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">4</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50 text-gray-500">
-                  <i class="ri-arrow-right-s-line"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Users Section -->
-        <section id="users-section" class="hidden space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Manajemen Pengguna</h2>
-            <button class="bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90 flex items-center">
-              <i class="ri-user-add-line mr-2"></i>
-              Tambah Pengguna
-            </button>
-          </div>
-          
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div class="flex items-center">
-                <div class="relative flex-1 md:w-64">
-                  <input type="text" placeholder="Cari pengguna..." class="w-full border rounded-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
-                  <i class="ri-search-line absolute left-3 top-2.5 text-gray-400"></i>
-                </div>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <div class="relative">
-                  <select class="border rounded px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Semua Role</option>
-                    <option>Admin</option>
-                    <option>Pelanggan</option>
-                    <option>Staff</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-                <div class="relative">
-                  <select class="border rounded px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>Semua Status</option>
-                    <option>Aktif</option>
-                    <option>Tidak Aktif</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="ri-arrow-down-s-line"></i>
-                  </div>
-                </div>
-                <button class="border rounded px-3 py-2 hover:bg-gray-50">
-                  <i class="ri-filter-3-line mr-1"></i>
-                  Filter
-                </button>
-              </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr class="bg-gray-50 border-y">
-                    <th class="py-3 px-4 text-left">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <span>Nama</span>
-                      </div>
-                    </th>
-                    <th class="py-3 px-4 text-left">Email</th>
-                    <th class="py-3 px-4 text-left">No. Telepon</th>
-                    <th class="py-3 px-4 text-left">Role</th>
-                    <th class="py-3 px-4 text-left">Status</th>
-                    <th class="py-3 px-4 text-left">Terdaftar</th>
-                    <th class="py-3 px-4 text-left">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <i class="ri-user-line text-gray-600"></i>
-                          </div>
-                          <span class="font-medium">Ahmad Faisal</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">ahmad.faisal@example.com</td>
-                    <td class="py-3 px-4">081234567890</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Admin</span>
-                    </td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">10 Jan 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <i class="ri-user-line text-gray-600"></i>
-                          </div>
-                          <span class="font-medium">Dewi Anggraini</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">dewi.anggraini@example.com</td>
-                    <td class="py-3 px-4">081234567891</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Pelanggan</span>
-                    </td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">15 Feb 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <i class="ri-user-line text-gray-600"></i>
-                          </div>
-                          <span class="font-medium">Rudi Hartono</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">rudi.hartono@example.com</td>
-                    <td class="py-3 px-4">081234567892</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Pelanggan</span>
-                    </td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">22 Mar 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <i class="ri-user-line text-gray-600"></i>
-                          </div>
-                          <span class="font-medium">Siti Nuraini</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">siti.nuraini@example.com</td>
-                    <td class="py-3 px-4">081234567893</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Pelanggan</span>
-                    </td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">05 Apr 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="py-3 px-4">
-                      <div class="flex items-center">
-                        <input type="checkbox" class="mr-2">
-                        <div class="flex items-center">
-                          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <i class="ri-user-line text-gray-600"></i>
-                          </div>
-                          <span class="font-medium">Budi Santoso</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3 px-4">budi.santoso@example.com</td>
-                    <td class="py-3 px-4">081234567894</td>
-                    <td class="py-3 px-4">
-                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Pelanggan</span>
-                    </td>
-                    <td class="py-3 px-4">
-                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Aktif</span>
-                    </td>
-                    <td class="py-3 px-4">18 Apr 2025</td>
-                    <td class="py-3 px-4">
-                      <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="p-4 flex items-center justify-between border-t">
-              <div class="text-gray-600 text-sm">
-                Menampilkan 1-5 dari 85 pengguna
-              </div>
-              <div class="flex space-x-1">
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50 text-gray-500">
-                  <i class="ri-arrow-left-s-line"></i>
-                </button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border bg-primary text-white">1</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">2</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">3</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50">4</button>
-                <button class="w-8 h-8 flex items-center justify-center rounded border hover:bg-gray-50 text-gray-500">
-                  <i class="ri-arrow-right-s-line"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Settings Section -->
-        <section id="settings-section" class="hidden space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Pengaturan</h2>
-            <button class="bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90">
-              Simpan Perubahan
-            </button>
-          </div>
-          
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 space-y-6">
-              <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold mb-4">Informasi Website</h3>
-                <div class="space-y-4">
-                  <div>
-                    <label for="site-name" class="block text-gray-700 mb-2">Nama Website</label>
-                    <input type="text" id="site-name" value="Graha Advertising" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                  <div>
-                    <label for="site-description" class="block text-gray-700 mb-2">Deskripsi</label>
-                    <textarea id="site-description" rows="3" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">Menyediakan jasa pembuatan pakaian custom berkualitas tinggi dengan harga terbaik sejak 2010.</textarea>
-                  </div>
-                  <div>
-                    <label for="site-email" class="block text-gray-700 mb-2">Email Kontak</label>
-                    <input type="email" id="site-email" value="info@grahaadvertising.com" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                  <div>
-                    <label for="site-phone" class="block text-gray-700 mb-2">Nomor Telepon</label>
-                    <input type="tel" id="site-phone" value="+62 21 7654 3210" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                  <div>
-                    <label for="site-address" class="block text-gray-700 mb-2">Alamat</label>
-                    <textarea id="site-address" rows="3" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">Jl. Raya Pasar Minggu No. 45, Jakarta Selatan, DKI Jakarta 12540</textarea>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold mb-4">Pengaturan Sosial Media</h3>
-                <div class="space-y-4">
-                  <div>
-                    <label for="facebook" class="block text-gray-700 mb-2">Facebook</label>
-                    <div class="flex">
-                      <span class="bg-gray-100 border border-r-0 rounded-l px-3 py-2 flex items-center">
-                        <i class="ri-facebook-fill text-blue-600"></i>
-                      </span>
-                      <input type="text" id="facebook" value="https://facebook.com/grahaadvertising" class="flex-1 border rounded-r px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                    </div>
-                  </div>
-                  <div>
-                    <label for="instagram" class="block text-gray-700 mb-2">Instagram</label>
-                    <div class="flex">
-                      <span class="bg-gray-100 border border-r-0 rounded-l px-3 py-2 flex items-center">
-                        <i class="ri-instagram-line text-pink-600"></i>
-                      </span>
-                      <input type="text" id="instagram" value="https://instagram.com/grahaadvertising" class="flex-1 border rounded-r px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                    </div>
-                  </div>
-                  <div>
-                    <label for="twitter" class="block text-gray-700 mb-2">Twitter</label>
-                    <div class="flex">
-                      <span class="bg-gray-100 border border-r-0 rounded-l px-3 py-2 flex items-center">
-                        <i class="ri-twitter-x-line text-gray-800"></i>
-                      </span>
-                      <input type="text" id="twitter" value="https://twitter.com/grahaadvertising" class="flex-1 border rounded-r px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                    </div>
-                  </div>
-                  <div>
-                    <label for="youtube" class="block text-gray-700 mb-2">YouTube</label>
-                    <div class="flex">
-                      <span class="bg-gray-100 border border-r-0 rounded-l px-3 py-2 flex items-center">
-                        <i class="ri-youtube-line text-red-600"></i>
-                      </span>
-                      <input type="text" id="youtube" value="https://youtube.com/grahaadvertising" class="flex-1 border rounded-r px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="space-y-6">
-              <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold mb-4">Logo Website</h3>
-                <div class="mb-4 flex justify-center">
-                  <div class="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="ri-building-line text-primary ri-3x"></i>
-                  </div>
-                </div>
-                <div class="flex justify-center">
-                  <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-button hover:bg-gray-200">
-                    <i class="ri-upload-2-line mr-2"></i>
-                    Unggah Logo
-                  </button>
-                </div>
-              </div>
-              
-              <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold mb-4">Pengaturan Email</h3>
-                <div class="space-y-4">
-                  <div>
-                    <label for="smtp-host" class="block text-gray-700 mb-2">SMTP Host</label>
-                    <input type="text" id="smtp-host" value="smtp.example.com" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                  <div>
-                    <label for="smtp-port" class="block text-gray-700 mb-2">SMTP Port</label>
-                    <input type="text" id="smtp-port" value="587" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                  <div>
-                    <label for="smtp-user" class="block text-gray-700 mb-2">SMTP Username</label>
-                    <input type="text" id="smtp-user" value="info@grahaadvertising.com" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                  <div>
-                    <label for="smtp-pass" class="block text-gray-700 mb-2">SMTP Password</label>
-                    <input type="password" id="smtp-pass" value="••••••••••••" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        <span id="notification-text"></span>
     </div>
-  </div>
 
-  <!-- Mobile Sidebar (hidden by default) -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" id="mobile-sidebar-overlay">
-    <div class="bg-gray-900 text-white w-64 h-full overflow-y-auto">
-      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-        <div class="flex items-center">
-          <div class="w-10 h-10 flex items-center justify-center text-primary mr-2">
-            <i class="ri-building-line ri-2x"></i>
-          </div>
-          <div class="flex flex-col">
-            <span class="font-['Pacifico'] text-2xl text-primary">Graha</span>
-            <span class="text-xs -mt-1 text-gray-400">Admin Panel</span>
-          </div>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-gray-900 text-white w-64 flex-shrink-0 transition-transform duration-300 -translate-x-full md:translate-x-0 fixed md:relative z-30 h-full">
+            <div class="p-4 border-b border-gray-800">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-box text-primary text-2xl mr-2"></i>
+                        <div>
+                            <span class="font-bold text-xl text-primary">Graha</span>
+                            <p class="text-xs text-gray-400">Admin Panel</p>
+                        </div>
+                    </div>
+                    <button id="close-sidebar" class="md:hidden text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <nav class="p-4">
+                <div class="space-y-2">
+                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center bg-primary" data-tab="products">
+                        <i class="fas fa-box mr-2"></i>
+                        Manajemen Barang
+                    </button>
+                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center" data-tab="materials">
+                        <i class="fas fa-cogs mr-2"></i>
+                        Manajemen Bahan
+                    </button>
+                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center" data-tab="orders">
+                        <i class="fas fa-shopping-bag mr-2"></i>
+                        Manajemen Pesanan
+                    </button>
+                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center" data-tab="stocks">
+                        <i class="fas fa-warehouse mr-2"></i>
+                        Manajemen Stok
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button id="menu-toggle" class="md:hidden mr-2 text-gray-600">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 id="page-title" class="text-xl font-semibold text-gray-800">Manajemen Barang</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-gray-600"></i>
+                        </div>
+                        <span class="text-gray-700 font-medium">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Products Tab -->
+                <div id="products-tab" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Daftar Barang</h2>
+                        <button id="add-product-btn" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center">
+                            <i class="fas fa-plus mr-2"></i>
+                            Tambah Barang
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Products will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Materials Tab -->
+                <div id="materials-tab" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Daftar Bahan</h2>
+                        <button id="add-material-btn" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center">
+                            <i class="fas fa-plus mr-2"></i>
+                            Tambah Bahan
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b bg-gray-50">
+                                        <th class="text-left p-4">Nama Bahan</th>
+                                        <th class="text-left p-4">Deskripsi</th>
+                                        <th class="text-left p-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="materials-table">
+                                    <!-- Materials will be rendered here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div id="orders-tab" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Daftar Pesanan</h2>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="p-4 flex flex-col md:flex-row gap-4">
+                            <div class="relative flex-1">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="order-search" placeholder="Cari pesanan..." class="w-full border rounded px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                            <select id="status-filter" class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="all">Semua Status</option>
+                                <option value="pending">Menunggu</option>
+                                <option value="processing">Diproses</option>
+                                <option value="shipped">Dikirim</option>
+                                <option value="completed">Selesai</option>
+                                <option value="cancelled">Dibatalkan</option>
+                            </select>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b bg-gray-50">
+                                        <th class="text-left p-4">ID Pesanan</th>
+                                        <th class="text-left p-4">Pelanggan</th>
+                                        <th class="text-left p-4">Produk</th>
+                                        <th class="text-left p-4">Total</th>
+                                        <th class="text-left p-4">Status</th>
+                                        <th class="text-left p-4">Tanggal</th>
+                                        <th class="text-left p-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table">
+                                    <!-- Orders will be rendered here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stocks Tab -->
+                <div id="stocks-tab" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Manajemen Stok</h2>
+                        <button id="add-stock-btn" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center">
+                            <i class="fas fa-plus mr-2"></i>
+                            Tambah Stok
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b bg-gray-50">
+                                        <th class="text-left p-4">Barang</th>
+                                        <th class="text-left p-4">Warna</th>
+                                        <th class="text-left p-4">Ukuran</th>
+                                        <th class="text-left p-4">Jumlah</th>
+                                        <th class="text-left p-4">Keterangan</th>
+                                        <th class="text-left p-4">Tanggal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stocks-table">
+                                    <!-- Stocks will be rendered here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-        <button id="close-sidebar" class="text-gray-400 hover:text-white">
-          <i class="ri-close-line ri-lg"></i>
-        </button>
-      </div>
-      <nav class="p-4">
-        <ul class="space-y-2">
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-white bg-primary" data-section="dashboard">
-              <i class="ri-dashboard-line mr-3"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="products">
-              <i class="ri-t-shirt-line mr-3"></i>
-              <span>Produk</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="orders">
-              <i class="ri-shopping-bag-line mr-3"></i>
-              <span>Pesanan</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="users">
-              <i class="ri-user-line mr-3"></i>
-              <span>Pengguna</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800" data-section="settings">
-              <i class="ri-settings-line mr-3"></i>
-              <span>Pengaturan</span>
-            </a>
-          </li>
-          <li class="pt-6 mt-6 border-t border-gray-800">
-            <a href="index.html" class="flex items-center p-2 rounded hover:bg-gray-800">
-              <i class="ri-arrow-left-line mr-3"></i>
-              <span>Kembali ke Website</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-red-400" onclick="logoutAdmin(event)">
-              <i class="ri-logout-box-line mr-3"></i>
-              <span>Keluar</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
     </div>
-  </div>
 
-  <!-- Custom JS -->
-  <script type="module" src="./js/admin.js"></script>
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modal-title" class="text-lg font-semibold"></h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modal-content">
+                    <!-- Modal content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/admin.js"></script>
 </body>
 </html>
