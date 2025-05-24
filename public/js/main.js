@@ -6,6 +6,7 @@
 // Import dari modul lain
 import { updateAuthUI } from "./auth.js";
 import { updateCartDisplay } from "./cart.js";
+// window.Cart.updateDisplay();
 
 // Inisialisasi Swiper
 function initSwiper() {

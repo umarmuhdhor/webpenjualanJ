@@ -339,55 +339,9 @@
           <!-- Product Image -->
           <div class="md:w-1/2">
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-              <img
-                id="product-image"
-                alt="Product Image"
-                class="w-full h-auto object-contain"
-                src="https://i.pinimg.com/736x/f7/6d/83/f76d832d5e6d66a3fe44c162140e77f6.jpg"
-              />
+              
             </div>
-            <div class="grid grid-cols-4 gap-2 mt-4">
-              <div
-                class="bg-white rounded border cursor-pointer hover:border-primary"
-              >
-                <img
-                  alt="Thumbnail 1"
-                  class="w-full h-24 object-cover"
-                  src="https://i.pinimg.com/736x/f7/6d/83/f76d832d5e6d66a3fe44c162140e77f6.jpg"
-                  onclick="changeMainImage(this.src)"
-                />
-              </div>
-              <div
-                class="bg-white rounded border cursor-pointer hover:border-primary"
-              >
-                <img
-                  alt="Thumbnail 2"
-                  class="w-full h-24 object-cover"
-                  src="https://i.pinimg.com/736x/31/c4/0a/31c40aee086c878bfadabdea4339736e.jpg"
-                  onclick="changeMainImage(this.src)"
-                />
-              </div>
-              <div
-                class="bg-white rounded border cursor-pointer hover:border-primary"
-              >
-                <img
-                  alt="Thumbnail 3"
-                  class="w-full h-24 object-cover"
-                  src="https://i.pinimg.com/736x/2b/2e/7f/2b2e7f38dedb7378a1cce1e833ce7dc4.jpg"
-                  onclick="changeMainImage(this.src)"
-                />
-              </div>
-              <div
-                class="bg-white rounded border cursor-pointer hover:border-primary"
-              >
-                <img
-                  alt="Thumbnail 4"
-                  class="w-full h-24 object-cover"
-                  src="https://i.pinimg.com/736x/a8/80/17/a8801742bf6916ab2262ecca92b78515.jpg"
-                  onclick="changeMainImage(this.src)"
-                />
-              </div>
-            </div>
+           
           </div>
 
           <!-- Product Info -->
@@ -425,7 +379,6 @@
               id="product-title"
               class="text-3xl font-bold text-gray-900 mb-4"
             >
-              Kaos Custom
             </h1>
             <p id="product-description" class="text-gray-600 mb-6">
               Kaos berkualitas dengan berbagai pilihan bahan, warna, dan design.
@@ -466,28 +419,13 @@
             <div class="mb-6">
               <h3 class="font-semibold mb-2">Pilihan Bahan:</h3>
               <div id="product-materials" class="grid grid-cols-2 gap-2">
-                <div
-                  class="border p-3 rounded cursor-pointer hover:bg-gray-50 hover:border-primary"
-                >
-                  <div class="font-medium">PE</div>
-                  <div class="text-sm text-gray-500">Polyester Elastis</div>
-                </div>
-                <div
-                  class="border p-3 rounded cursor-pointer hover:bg-gray-50 hover:border-primary"
-                >
-                  <div class="font-medium">Katun</div>
-                  <div class="text-sm text-gray-500">100% Katun</div>
-                </div>
+                
               </div>
             </div>
 
             <div class="mb-6">
               <h3 class="font-semibold">Harga:</h3>
               <p id="product-price" class="text-2xl font-bold text-primary">
-                Rp 40.000 - Rp 120.000
-              </p>
-              <p class="text-sm text-gray-500">
-                Harga tergantung pada jumlah pesanan dan bahan yang dipilih
               </p>
             </div>
 
@@ -516,7 +454,7 @@
             <div class="flex gap-4">
               <button
                 class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 whitespace-nowrap font-medium flex items-center"
-                onclick="scrollToOrderForm()"
+                onclick="Product.scrollToOrderForm()"
               >
                 <i class="ri-shopping-bag-line mr-2"></i> Pesan Sekarang
               </button>
@@ -539,13 +477,6 @@
               Form Pemesanan
             </button>
             <button
-              id="tab-price"
-              class="inline-block p-4 border-b-2 border-transparent hover:text-primary font-medium"
-              onclick="openTab('price')"
-            >
-              Daftar Harga
-            </button>
-            <button
               id="tab-size"
               class="inline-block p-4 border-b-2 border-transparent hover:text-primary font-medium"
               onclick="openTab('size')"
@@ -562,7 +493,7 @@
             <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6">
               <section id="formPemesanan" class="bg-white p-6 rounded">
                 <h3 class="text-2xl font-bold text-primary mb-6">
-                  Form Pemesanan
+                  Form Pemesanan 
                 </h3>
                 <form>
                   <!-- Grid: Ukuran -->
@@ -660,21 +591,12 @@
                   <!-- Grid: Jumlah & Produk -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
-                      <label for="quantity-input" class="text-gray-700 mb-2"
-                        >Jumlah</label
-                      >
-                      <input
-                        type="number"
-                        id="quantity-input"
-                        min="12"
-                        value="12"
-                        class="w-full border border-gray-300 rounded p-2"
-                      />
+                    
+                    
                       <span
                         id="size-warning"
                         class="text-sm text-red-500 mt-1 hidden"
                       >
-                        Minimal pemesanan adalah 12 pcs.
                       </span>
                     </div>
                   </div>
@@ -749,87 +671,7 @@
               </section>
             </div>
           </div>
-
-          <!-- Daftar Harga Tab -->
-          <div id="content-price" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-10">
-              <h3 class="text-2xl font-bold text-primary mb-6">Daftar Harga</h3>
-              <div class="overflow-x-auto">
-                <table class="w-full">
-                  <thead>
-                    <tr class="border-b">
-                      <th class="py-3 px-4 text-left">Produk</th>
-                      <th class="py-3 px-4 text-left">Bahan</th>
-                      <th class="py-3 px-4 text-left">Harga Satuan</th>
-                      <th class="py-3 px-4 text-left">Min. Order</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">Kaos</td>
-                      <td class="py-3 px-4">PE & Katun</td>
-                      <td class="py-3 px-4">Rp 40.000 - Rp 120.000</td>
-                      <td class="py-3 px-4">12 pcs</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">Kemeja</td>
-                      <td class="py-3 px-4">
-                        American Drill, Japan Drill, dan Toyobo
-                      </td>
-                      <td class="py-3 px-4">Rp 100.000 - Rp 200.000</td>
-                      <td class="py-3 px-4">12 pcs</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">Jaket</td>
-                      <td class="py-3 px-4">Parasut, Wol, dan Lotto</td>
-                      <td class="py-3 px-4">Rp 110.000 - Rp 250.000</td>
-                      <td class="py-3 px-4">12 pcs</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">Jersey</td>
-                      <td class="py-3 px-4">Jersey</td>
-                      <td class="py-3 px-4">Rp 90.000 - Rp 250.000</td>
-                      <td class="py-3 px-4">12 pcs</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">Kaos Polo</td>
-                      <td class="py-3 px-4">Polo</td>
-                      <td class="py-3 px-4">Rp 90.000 - Rp 250.000</td>
-                      <td class="py-3 px-4">12 pcs</td>
-                    </tr>
-                    <tr class="border-b">
-                      <td class="py-3 px-4">Hoodie</td>
-                      <td class="py-3 px-4">Spunbond</td>
-                      <td class="py-3 px-4">Rp 90.000 - Rp 250.000</td>
-                      <td class="py-3 px-4">12 pcs</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="mt-8 bg-gray-50 p-4 rounded">
-                <h4 class="font-semibold mb-2">Diskon Pemesanan:</h4>
-                <ul class="space-y-1">
-                  <li class="flex items-center">
-                    <i class="ri-percent-line text-primary mr-2"></i>
-                    <span>Pemesanan 30+ pcs: diskon 3%</span>
-                  </li>
-                  <li class="flex items-center">
-                    <i class="ri-percent-line text-primary mr-2"></i>
-                    <span>Pemesanan 60+ pcs: diskon 6%</span>
-                  </li>
-                  <li class="flex items-center">
-                    <i class="ri-percent-line text-primary mr-2"></i>
-                    <span>Pemesanan 90+ pcs: diskon 9%</span>
-                  </li>
-                  <li class="flex items-center">
-                    <i class="ri-percent-line text-primary mr-2"></i>
-                    <span>Pemesanan 120+ pcs: diskon 12%</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+         
 
           <!-- Size Chart Tab -->
           <div id="content-size" class="tab-content hidden">
