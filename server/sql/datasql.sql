@@ -18,12 +18,12 @@ CREATE TABLE users (
   role TEXT NOT NULL
 );
 
--- Tabel barang (baru)
 CREATE TABLE barang (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nama_barang TEXT NOT NULL,
   url_gambar TEXT,
-  deskripsi TEXT
+  deskripsi TEXT,
+  harga INTEGER NOT NULL DEFAULT 0 -- Harga dalam satuan terkecil, misalnya Rupiah
 );
 
 -- Tabel bahan (baru)
@@ -103,9 +103,10 @@ INSERT INTO bahan (nama_bahan, deskripsi) VALUES
   ('Lotto', 'Bahan elastis, sering digunakan untuk pakaian olahraga');
 
 -- Data awal untuk barang
-INSERT INTO barang (nama_barang, url_gambar, deskripsi) VALUES 
-  ('Kaos A', '/images/kaos_a.jpg', 'Kaos polos berkualitas tinggi, cocok untuk custom sablon atau bordir'),
-  ('Hoodie A', '/images/hoodie_a.jpg', 'Hoodie nyaman dengan bahan tebal, ideal untuk cuaca dingin');
+-- Perbarui data awal untuk barang dengan harga
+INSERT INTO barang (nama_barang, url_gambar, deskripsi, harga) VALUES 
+  ('Kaos A', '/images/kaos_a.jpg', 'Kaos polos berkualitas tinggi, cocok untuk custom sablon atau bordir', 75000),
+  ('Hoodie A', '/images/hoodie_a.jpg', 'Hoodie nyaman dengan bahan tebal, ideal untuk cuaca dingin', 150000);
 
 -- Data awal untuk barang_bahan (relasi)
 INSERT INTO barang_bahan (barang_id, bahan_id) VALUES 
@@ -131,3 +132,6 @@ INSERT INTO stock (barang_id, color, size, quantity, min_quantity) VALUES
   (2, 'Biru', 'L', 15, 10),
   (2, 'Merah', 'M', 18, 10),
   (2, 'Merah', 'L', 12, 10);
+  
+  
+  SELECT * FROM barang

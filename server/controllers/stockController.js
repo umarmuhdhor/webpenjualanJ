@@ -104,7 +104,7 @@ const addStock = (req, res) => {
 // Ambil daftar stok
 const getStock = (req, res) => {
   db.all(
-    'SELECT s.barang_id, b.nama_barang, s.color, s.size, s.quantity, s.min_quantity ' +
+    'SELECT s.barang_id, b.nama_barang, b.harga, s.color, s.size, s.quantity, s.min_quantity ' +
     'FROM stock s JOIN barang b ON s.barang_id = b.id WHERE s.quantity > 0',
     [],
     (err, stocks) => {
