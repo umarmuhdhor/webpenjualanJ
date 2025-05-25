@@ -187,36 +187,156 @@ async function fetchProductData() {
     return [];
   }
 }
+
 async function setMinInputByStock() {
-  const id = new URLSearchParams(window.location.search).get("id");
+  const id = getUrlParameter(); 
   const response = await fetch("http://localhost:3000/api/stock");
   const datastok = await response.json();
   const barangList = datastok.stocks;
-  console.log("halo");
-  console.log(barangList);
+
+  const productID = getUrlParameter();
+  const productData = await fetchProductData();
+  const product = productData.find(item => item.id === parseInt(productID));
+
+  if (!product) {
+    console.error("Produk tidak ditemukan");
+    return;
+  }
+
+  const hargaBarang = product.harga;
+  console.log("Harga barang:", hargaBarang);
+
   const filtered = barangList.filter(item => item.barang_id === parseInt(id));
-  console.log(filtered);
   const colors = [...new Set(filtered.map(item => item.color))];
 
   const colorSelect = document.getElementById("color");
-  console.log(colors);
   colorSelect.innerHTML = '<option value="">-- Pilih Warna --</option>';
   colors.forEach(color => {
     const hasStock = filtered.some(item => item.color === color && item.quantity > 0);
     if (hasStock) {
-    const option = document.createElement("option");
-    option.value = color;
-    option.textContent = color;
-    colorSelect.appendChild(option);
+      const option = document.createElement("option");
+      option.value = color;
+      option.textContent = color;
+      colorSelect.appendChild(option);
     }
   });
 
   colorSelect.addEventListener("change", function () {
     populateSizeOptions(this.value);
   });
+
   document.getElementById("size").addEventListener("change", function () {
     handleQuantityEnable(colorSelect.value, this.value);
   });
+
+  document.getElementById("quantity").addEventListener("input", function () {
+    updateTotalHarga(hargaBarang);
+  });
+
+  let daftarUkuran = [];
+
+  document.getElementById("tambah-ukuran").addEventListener("click", function () {
+    const color = document.getElementById("color").value;
+    const size = document.getElementById("size").value;
+    const quantity = parseInt(document.getElementById("quantity").value);
+
+    if (!color || !size || !quantity || quantity <= 0) {
+      alert("Lengkapi warna, ukuran, dan jumlah terlebih dahulu.");
+      return;
+    }
+
+    const existing = daftarUkuran.find(item => item.color === color && item.size === size);
+    if (existing) {
+      alert("Kombinasi warna dan ukuran ini sudah ditambahkan.");
+      return;
+    }
+
+    daftarUkuran.push({ color, size, quantity });
+
+    const list = document.getElementById("ukuran-list");
+    const item = document.createElement("div");
+    item.className = "flex justify-between items-center bg-gray-100 p-2 rounded";
+    item.innerHTML = `
+      <span>${color} - ${size} - ${quantity} pcs</span>
+      <button class="text-red-500 hover:underline remove-item">Hapus</button>
+    `;
+    list.appendChild(item);
+
+    item.querySelector(".remove-item").addEventListener("click", () => {
+      list.removeChild(item);
+      daftarUkuran = daftarUkuran.filter(u => !(u.color === color && u.size === size));
+    });
+
+    document.getElementById("size").selectedIndex = 0;
+    document.getElementById("quantity").value = "";
+    document.getElementById("quantity").disabled = true;
+  });
+
+  document.getElementById("checkout-button").addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    const barangId = parseInt(getUrlParameter());
+    const details = document.getElementById("custom-text").value;
+    const unitPrice = product.harga;
+    const designInput = document.getElementById("design-upload");
+
+    if (daftarUkuran.length === 0) {
+      alert("Tambahkan minimal satu kombinasi ukuran terlebih dahulu.");
+      return;
+    }
+
+    const file = designInput.files[0];
+    let designs = [];
+    if (file) {
+      designs.push({
+        type: "sablon",
+        url: `/designs/${file.name}`
+      });
+    }
+
+    const totalQuantity = daftarUkuran.reduce((sum, item) => sum + item.quantity, 0);
+
+    const data = {
+      barang_id: barangId,
+      sizes: daftarUkuran,
+      quantity: totalQuantity,
+      details: details || "-",
+      unitPrice: unitPrice,
+      designs: designs
+    };
+
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("Kamu harus login terlebih dahulu.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/orders", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Gagal membuat pesanan");
+      }
+
+      alert("Pesanan berhasil dibuat!");
+      daftarUkuran = [];
+      document.getElementById("ukuran-list").innerHTML = "";
+      document.querySelector("form").reset();
+      document.getElementById("total-harga").textContent = "Rp 0";
+    } catch (err) {
+      console.error("Error saat membuat order:", err);
+      alert("Terjadi kesalahan saat membuat pesanan.");
+    }
+  });
+
   function populateSizeOptions(selectedColor) {
     const sizeSelect = document.getElementById("size");
     sizeSelect.disabled = false;
@@ -227,20 +347,19 @@ async function setMinInputByStock() {
         .filter(item => item.quantity > 0)
         .map(item => item.size);
 
-    // Unikkan
     const uniqueSizes = [...new Set(sizes)];
-
     uniqueSizes.forEach(size => {
-        const option = document.createElement("option");
-        option.value = size;
-        option.textContent = size;
-        sizeSelect.appendChild(option);
+      const option = document.createElement("option");
+      option.value = size;
+      option.textContent = size;
+      sizeSelect.appendChild(option);
     });
 
-    // Reset quantity input
     document.getElementById("quantity").value = "";
     document.getElementById("quantity").disabled = true;
+    document.getElementById("total-harga").textContent = "Rp 0";
   }
+
   function handleQuantityEnable(color, size) {
     const stockItem = barangList.find(item =>
         item.barang_id === parseInt(id) &&
@@ -250,28 +369,28 @@ async function setMinInputByStock() {
 
     const qtyInput = document.getElementById("quantity");
     if (stockItem && stockItem.quantity > 0) {
-        qtyInput.disabled = false;
-        qtyInput.max = stockItem.quantity;
-        qtyInput.min = stockItem.min_quantity || 0;
-        qtyInput.placeholder = `Max: ${stockItem.quantity}`;
+      qtyInput.disabled = false;
+      qtyInput.max = stockItem.quantity;
+      qtyInput.min = 1;
+      qtyInput.placeholder = `Max: ${stockItem.quantity}`;
     } else {
-        qtyInput.disabled = true;
-        qtyInput.placeholder = "Stok tidak tersedia";
+      qtyInput.disabled = true;
+      qtyInput.placeholder = "Stok tidak tersedia";
     }
+
+    document.getElementById("total-harga").textContent = "Rp0";
   }
-  
-  const displayquantity = document.getElementById("display-quantity");
-  if (displayquantity) displayquantity.textContent = product.nama_barang;
 
-  qtyInput.addEventListener("input", () => {
-  const jumlah = parseInt(qtyInput.value) || 0;
-  const totalHarga = jumlah * hargaBarang;
-  document.getElementById("total-harga").textContent = `Total: Rp${totalHarga.toLocaleString("id-ID")}`;
-  });
+  function updateTotalHarga(harga) {
+    const qty = parseInt(document.getElementById("quantity").value);
+    const total = isNaN(qty) ? 0 : qty * harga;
+    document.getElementById("total-harga").textContent = formatRupiah(total);
+  }
 
-}
-
-
+  function formatRupiah(angka) {
+    return "Rp" + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+} 
 
 // Fungsi untuk change main product image
 function changeMainImage(src) {
@@ -319,6 +438,7 @@ async function initProductPage() {
   // Load product detail
   await loadProductDetail();
   await setMinInputByStock();
+  await resulthasil();
 
   // Add event listener for add to cart button
   const addToCartBtn = document.getElementById("add-to-cart-btn");

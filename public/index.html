@@ -269,6 +269,7 @@
 
     <!-- Container for dynamic product cards -->
     <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Product cards will be inserted here dynamically -->
     </div>
   </div>
 </section>
@@ -913,5 +914,38 @@
     });
   });
 </script>
+
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const productList = document.getElementById('product-list');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/barang');
+      const data = await response.json();
+
+      data.barang.forEach(item => {
+        // Buat elemen kartu produk
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-md p-4';
+
+        card.innerHTML = `
+          <img src="${item.url_gambar}" alt="${item.nama_barang}" class="w-full h-48 object-cover rounded-md mb-4">
+          <h2 class="text-lg font-semibold">${item.nama_barang}</h2>
+          <p class="text-gray-600 mb-2">${item.deskripsi}</p>
+          <h3 class="font-semibold mt-2 mb-1">Bahan:</h3>
+          <ul class="list-disc list-inside text-sm text-gray-700">
+            ${item.bahan.map(b => `<li><strong>${b.nama_bahan}</strong>: ${b.deskripsi}</li>`).join('')}
+          </ul>
+        `;
+
+        productList.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Gagal mengambil data barang:', error);
+      productList.innerHTML = '<p class="text-red-500">Gagal memuat produk.</p>';
+    }
+  });
+</script> -->
+
 </body>
 </html>
