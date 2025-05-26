@@ -277,37 +277,42 @@
 <!-- Include product.js and custom script for rendering products -->
 <script src="product.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    const productList = document.getElementById('product-list');
+document.addEventListener('DOMContentLoaded', async () => {
+  const productList = document.getElementById('product-list');
 
-    try {
-      const response = await fetch('http://localhost:3000/api/barang');
-      const data = await response.json();
+  try {
+    const response = await fetch('http://localhost:3000/api/barang');
+    const data = await response.json();
 
-      data.barang.forEach(item => {
-        // Buat elemen tautan
-        const link = document.createElement('a');
-        link.href = `product-detail.html?id=${item.id}`;
-        link.className = 'block bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition';
+    data.barang.forEach(item => {
+      // Buat elemen tautan
+      const link = document.createElement('a');
+      link.href = `product-detail.html?id=${item.id}`;
+      link.className = 'block bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition';
 
-        // Isi elemen kartu produk
-        link.innerHTML = `
-          <img src="${item.url_gambar}" alt="${item.nama_barang}" class="w-full h-48 object-cover rounded-md mb-4">
-          <h2 class="text-lg font-semibold">${item.nama_barang}</h2>
-          <p class="text-gray-600 mb-2">${item.deskripsi}</p>
-          <h3 class="font-semibold mt-2 mb-1">Bahan:</h3>
-          <ul class="list-disc list-inside text-sm text-gray-700">
-            ${item.bahan.map(b => `<li><strong>${b.nama_bahan}</strong>: ${b.deskripsi}</li>`).join('')}
-          </ul>
-        `;
+      // Pastikan URL gambar diawali dengan http://localhost:3000
+      const imageUrl = item.url_gambar.startsWith('http://localhost:3000') 
+        ? item.url_gambar 
+        : `http://localhost:3000${item.url_gambar.startsWith('/') ? '' : '/'}${item.url_gambar}`;
 
-        productList.appendChild(link);
-      });
-    } catch (error) {
-      console.error('Gagal mengambil data barang:', error);
-      productList.innerHTML = '<p class="text-red-500">Gagal memuat produk.</p>';
-    }
-  });
+      // Isi elemen kartu produk
+      link.innerHTML = `
+        <img src="${imageUrl}" alt="${item.nama_barang}" class="w-full h-48 object-cover rounded-md mb-4">
+        <h2 class="text-lg font-semibold">${item.nama_barang}</h2>
+        <p class="text-gray-600 mb-2">${item.deskripsi}</p>
+        <h3 class="font-semibold mt-2 mb-1">Bahan:</h3>
+        <ul class="list-disc list-inside text-sm text-gray-700">
+          ${item.bahan.map(b => `<li><strong>${b.nama_bahan}</strong>: ${b.deskripsi}</li>`).join('')}
+        </ul>
+      `;
+
+      productList.appendChild(link);
+    });
+  } catch (error) {
+    console.error('Gagal mengambil data barang:', error);
+    productList.innerHTML = '<p class="text-red-500">Gagal memuat produk.</p>';
+  }
+});
 </script>
 
 
