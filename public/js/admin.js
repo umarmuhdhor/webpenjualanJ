@@ -870,17 +870,6 @@ async function renderWarehouseStocks() {
           <td class="p-4">${stock.size}</td>
           <td class="p-4">Rp ${stock.harga.toLocaleString("id-ID")}</td>
           <td class="p-4 ${stock.quantity <= stock.min_quantity ? 'text-red-500' : ''}">${stock.quantity}</td>
-          <td class="p-4">${stock.min_quantity}</td>
-          <td class="p-4">
-            <div class="flex space-x-2">
-              <button onclick="editWarehouseStock('${stock.barang_id}', '${stock.color}', '${stock.size}')" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button onclick="deleteWarehouseStock('${stock.barang_id}', '${stock.color}', '${stock.size}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </td>
         </tr>
       `
     )
@@ -996,88 +985,6 @@ async function addWarehouseStock() {
       showNotification('Terjadi kesalahan saat menambahkan stok gudang', 'error');
     }
   });
-}
-
-async function editWarehouseStock(barang_id, color, size) {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
-    return;
-  }
-
-  await fetchProducts();
-  const stock = warehouseStocks.find(
-    (s) => s.barang_id == barang_id && s.color === color && s.size === size
-  );
-  if (!stock) return;
-
-  openModal("Edit Stok Gudang", getWarehouseStockForm(stock));
-
-  document.getElementById("warehouse-stock-form").addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const updatedStock = {
-      barang_id: parseInt(document.getElementById("barang_id").value),
-      harga: parseInt(document.getElementById("harga").value),
-      color: document.getElementById("color").value,
-      size: document.getElementById("size").value,
-      quantity: parseInt(document.getElementById("quantity").value),
-      min_quantity: parseInt(document.getElementById("min_quantity").value),
-    };
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/stock/${barang_id}/${color}/${size}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedStock),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        await renderWarehouseStocks();
-        closeModal();
-        showNotification("Stok gudang berhasil diupdate!");
-      } else if (response.status === 401) {
-        showNotification('Token tidak valid. Silakan login ulang.', 'error');
-      } else {
-        showNotification(data.error || 'Gagal mengupdate stok gudang', 'error');
-      }
-    } catch (error) {
-      showNotification('Terjadi kesalahan saat mengupdate stok gudang', 'error');
-    }
-  });
-}
-
-async function deleteWarehouseStock(barang_id, color, size) {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
-    return;
-  }
-
-  if (confirm("Apakah Anda yakin ingin menghapus stok ini?")) {
-    try {
-      const response = await fetch(`http://localhost:3000/api/stock/${barang_id}/${color}/${size}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        await renderWarehouseStocks();
-        showNotification("Stok gudang berhasil dihapus!");
-      } else if (response.status === 401) {
-        showNotification('Token tidak valid. Silakan login ulang.', 'error');
-      } else {
-        showNotification(data.error || 'Gagal menghapus stok gudang', 'error');
-      }
-    } catch (error) {
-      showNotification('Terjadi kesalahan saat menghapus stok gudang', 'error');
-    }
-  }
 }
 
 // Event Listeners
