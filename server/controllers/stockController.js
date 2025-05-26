@@ -116,6 +116,8 @@ const getStock = (req, res) => {
   );
 };
 
+
+
 // Ambil riwayat stok (hanya admin)
 const getStockHistory = (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya untuk admin' });

@@ -1,236 +1,335 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Graha Advertising</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#7B1114',
-                        secondary: '#6B21A8'
-                    }
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#7B1114",
+              secondary: "#6B21A8",
+            },
+          },
+        },
+      };
     </script>
-</head>
-<body class="bg-gray-100">
+  </head>
+  <body class="bg-gray-100">
     <!-- Notification -->
-    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
-        <span id="notification-text"></span>
+    <div
+      id="notification"
+      class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50"
+    >
+      <span id="notification-text"></span>
     </div>
 
     <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="bg-gray-900 text-white w-64 flex-shrink-0 transition-transform duration-300 -translate-x-full md:translate-x-0 fixed md:relative z-30 h-full">
-            <div class="p-4 border-b border-gray-800">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <i class="fas fa-box text-primary text-2xl mr-2"></i>
-                        <div>
-                            <span class="font-bold text-xl text-primary">Graha</span>
-                            <p class="text-xs text-gray-400">Admin Panel</p>
-                        </div>
-                    </div>
-                    <button id="close-sidebar" class="md:hidden text-gray-400 hover:text-white">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="bg-gray-900 text-white w-64 flex-shrink-0 transition-transform duration-300 -translate-x-full md:translate-x-0 fixed md:relative z-30 h-full"
+      >
+        <div class="p-4 border-b border-gray-800">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <i class="fas fa-box text-primary text-2xl mr-2"></i>
+              <div>
+                <span class="font-bold text-xl text-primary">Graha</span>
+                <p class="text-xs text-gray-400">Admin Panel</p>
+              </div>
+            </div>
+            <button
+              id="close-sidebar"
+              class="md:hidden text-gray-400 hover:text-white"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <nav class="p-4">
+          <div class="space-y-2">
+            <button
+              class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center bg-primary"
+              data-tab="products"
+            >
+              <i class="fas fa-box mr-2"></i>
+              Manajemen Barang
+            </button>
+            <button
+              class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center"
+              data-tab="materials"
+            >
+              <i class="fas fa-cogs mr-2"></i>
+              Manajemen Bahan
+            </button>
+            <button
+              class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center"
+              data-tab="orders"
+            >
+              <i class="fas fa-shopping-bag mr-2"></i>
+              Manajemen Pesanan
+            </button>
+            <button
+              class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center"
+              data-tab="stocks"
+            >
+              <i class="fas fa-warehouse mr-2"></i>
+              Manajemen Stok
+            </button>
+            <button
+              class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center"
+              data-tab="warehouse-stocks"
+            >
+              <i class="fas fa-warehouse mr-2"></i>
+              Manajemen Stok Gudang
+            </button>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Overlay for mobile -->
+      <div
+        id="sidebar-overlay"
+        class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden"
+      ></div>
+
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+              <button id="menu-toggle" class="md:hidden mr-2 text-gray-600">
+                <i class="fas fa-bars"></i>
+              </button>
+              <h1 id="page-title" class="text-xl font-semibold text-gray-800">
+                Manajemen Barang
+              </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <div
+                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center"
+              >
+                <i class="fas fa-user text-gray-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Products Tab -->
+          <div id="products-tab" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold">Daftar Barang</h2>
+              <button
+                id="add-product-btn"
+                class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Tambah Barang
+              </button>
             </div>
 
-            <nav class="p-4">
-                <div class="space-y-2">
-                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center bg-primary" data-tab="products">
-                        <i class="fas fa-box mr-2"></i>
-                        Manajemen Barang
-                    </button>
-                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center" data-tab="materials">
-                        <i class="fas fa-cogs mr-2"></i>
-                        Manajemen Bahan
-                    </button>
-                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center" data-tab="orders">
-                        <i class="fas fa-shopping-bag mr-2"></i>
-                        Manajemen Pesanan
-                    </button>
-                    <button class="nav-btn w-full text-left p-2 rounded hover:bg-gray-800 flex items-center" data-tab="stocks">
-                        <i class="fas fa-warehouse mr-2"></i>
-                        Manajemen Stok
-                    </button>
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <div
+                id="products-grid"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                <!-- Products will be rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Materials Tab -->
+          <div id="materials-tab" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold">Daftar Bahan</h2>
+              <button
+                id="add-material-btn"
+                class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Tambah Bahan
+              </button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b bg-gray-50">
+                      <th class="text-left p-4">Nama Bahan</th>
+                      <th class="text-left p-4">Deskripsi</th>
+                      <th class="text-left p-4">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="materials-table">
+                    <!-- Materials will be rendered here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Tab -->
+          <div id="orders-tab" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold">Daftar Pesanan</h2>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="p-4 flex flex-col md:flex-row gap-4">
+                <div class="relative flex-1">
+                  <i
+                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  ></i>
+                  <input
+                    type="text"
+                    id="order-search"
+                    placeholder="Cari pesanan..."
+                    class="w-full border rounded px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
                 </div>
-            </nav>
-        </aside>
+                <select
+                  id="status-filter"
+                  class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="diterima">Menunggu</option>
+                  <option value="diproses">Diproses</option>
+                  <option value="selesai">Selesai</option>
+                  <option value="dibatalkan">Dibatalkan</option>
+                </select>
+              </div>
 
-        <!-- Overlay for mobile -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden"></div>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b bg-gray-50">
+                      <th class="text-left p-4">ID Pesanan</th>
+                      <th class="text-left p-4">Pelanggan</th>
+                      <th class="text-left p-4">Produk</th>
+                      <th class="text-left p-4">Total</th>
+                      <th class="text-left p-4">Status</th>
+                      <th class="text-left p-4">Tanggal</th>
+                      <th class="text-left p-4">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="orders-table">
+                    <!-- Orders will be rendered here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Header -->
-            <header class="bg-white shadow-sm border-b">
-                <div class="flex items-center justify-between p-4">
-                    <div class="flex items-center">
-                        <button id="menu-toggle" class="md:hidden mr-2 text-gray-600">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        <h1 id="page-title" class="text-xl font-semibold text-gray-800">Manajemen Barang</h1>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-gray-600"></i>
-                        </div>
-                        <span class="text-gray-700 font-medium">Admin</span>
-                    </div>
-                </div>
-            </header>
 
-            <!-- Content -->
-            <main class="flex-1 overflow-y-auto p-6">
-                <!-- Products Tab -->
-                <div id="products-tab" class="tab-content">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold">Daftar Barang</h2>
-                        <button id="add-product-btn" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center">
-                            <i class="fas fa-plus mr-2"></i>
-                            Tambah Barang
-                        </button>
-                    </div>
+                    <!-- Warehouse Stocks Tab -->
+          <div id="warehouse-stocks-tab" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold">Manajemen Stok Gudang</h2>
+              <button
+                id="add-warehouse-stock-btn"
+                class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Tambah Stok Gudang
+              </button>
+            </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-6">
-                        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Products will be rendered here -->
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b bg-gray-50">
+                      <th class="text-left p-4">Nama Barang</th>
+                      <th class="text-left p-4">Warna</th>
+                      <th class="text-left p-4">Ukuran</th>
+                      <th class="text-left p-4">Harga</th>
+                      <th class="text-left p-4">Stok Gudang</th>
+                    </tr>
+                  </thead>
+                  <tbody id="warehouse-stocks-table">
+                    <!-- Warehouse stocks will be rendered here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-                <!-- Materials Tab -->
-                <div id="materials-tab" class="tab-content hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold">Daftar Bahan</h2>
-                        <button id="add-material-btn" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center">
-                            <i class="fas fa-plus mr-2"></i>
-                            Tambah Bahan
-                        </button>
-                    </div>
 
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b bg-gray-50">
-                                        <th class="text-left p-4">Nama Bahan</th>
-                                        <th class="text-left p-4">Deskripsi</th>
-                                        <th class="text-left p-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="materials-table">
-                                    <!-- Materials will be rendered here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Orders Tab -->
-                <div id="orders-tab" class="tab-content hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold">Daftar Pesanan</h2>
-                    </div>
+          <!-- Stocks Tab -->
+          <div id="stocks-tab" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold">Manajemen Riwayat Stok</h2>
+              <button
+                id="add-stock-btn"
+                class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Tambah Stok
+              </button>
+            </div>
 
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                        <div class="p-4 flex flex-col md:flex-row gap-4">
-                            <div class="relative flex-1">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="order-search" placeholder="Cari pesanan..." class="w-full border rounded px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
-                            </div>
-                            <select id="status-filter" class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                                <option value="all">Semua Status</option>
-                                <option value="pending">Menunggu</option>
-                                <option value="processing">Diproses</option>
-                                <option value="shipped">Dikirim</option>
-                                <option value="completed">Selesai</option>
-                                <option value="cancelled">Dibatalkan</option>
-                            </select>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b bg-gray-50">
-                                        <th class="text-left p-4">ID Pesanan</th>
-                                        <th class="text-left p-4">Pelanggan</th>
-                                        <th class="text-left p-4">Produk</th>
-                                        <th class="text-left p-4">Total</th>
-                                        <th class="text-left p-4">Status</th>
-                                        <th class="text-left p-4">Tanggal</th>
-                                        <th class="text-left p-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="orders-table">
-                                    <!-- Orders will be rendered here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stocks Tab -->
-                <div id="stocks-tab" class="tab-content hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold">Manajemen Stok</h2>
-                        <button id="add-stock-btn" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center">
-                            <i class="fas fa-plus mr-2"></i>
-                            Tambah Stok
-                        </button>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b bg-gray-50">
-                                        <th class="text-left p-4">Barang</th>
-                                        <th class="text-left p-4">Warna</th>
-                                        <th class="text-left p-4">Ukuran</th>
-                                        <th class="text-left p-4">Jumlah</th>
-                                        <th class="text-left p-4">Keterangan</th>
-                                        <th class="text-left p-4">Tanggal</th>
-                                        <th class="text-left p-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stocks-table">
-                                    <!-- Stocks will be rendered here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b bg-gray-50">
+                      <th class="text-left p-4">Barang</th>
+                      <th class="text-left p-4">Warna</th>
+                      <th class="text-left p-4">Ukuran</th>
+                      <th class="text-left p-4">Jumlah</th>
+                      <th class="text-left p-4">Keterangan</th>
+                      <th class="text-left p-4">Tanggal</th>
+                    </tr>
+                  </thead>
+                  <tbody id="stocks-table">
+                    <!-- Stocks will be rendered here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
 
     <!-- Modal -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="modal-title" class="text-lg font-semibold"></h3>
-                    <button id="close-modal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="modal-content">
-                    <!-- Modal content will be inserted here -->
-                </div>
-            </div>
+    <div
+      id="modal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-title" class="text-lg font-semibold"></h3>
+            <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="modal-content">
+            <!-- Modal content will be inserted here -->
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="js/admin.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
-</body>
+  </body>
 </html>

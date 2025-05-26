@@ -46,6 +46,7 @@ function switchTab(tabName) {
     materials: "Manajemen Bahan",
     orders: "Manajemen Pesanan",
     stocks: "Manajemen Stok",
+    warehouseStocks : "Manajemen Stok Gudang",
   };
   document.getElementById("page-title").textContent = titles[tabName];
 }
@@ -82,12 +83,15 @@ async function fetchProducts() {
 async function renderProducts() {
   await fetchProducts();
   const grid = document.getElementById("products-grid");
+  const BASE_URL = "http://localhost:3000"; // Backend URL
   grid.innerHTML = products
     .map((product) => {
       const bahanNames = product.bahan.map((b) => b.nama_bahan).join(", ");
+      // Use BASE_URL and remove extra /images/ from url_gambar
+      const imageUrl = `${BASE_URL}/${product.url_gambar}`;
       return `
         <div class="border rounded-lg p-4 space-y-4">
-          <img src="${product.url_gambar}" alt="${product.nama_barang}" class="w-full h-48 object-cover rounded">
+          <img src="${imageUrl}" alt="${product.nama_barang}" class="w-full h-48 object-cover rounded">
           <div>
             <h3 class="font-semibold text-lg">${product.nama_barang}</h3>
             <p class="text-gray-600 text-sm">${product.deskripsi || ""}</p>
@@ -108,6 +112,7 @@ async function renderProducts() {
       `;
     })
     .join("");
+  console.log("[05:26 PM WIB, May 25, 2025] Rendered products with image URLs");
 }
 
 function getProductForm(product = null) {
@@ -124,7 +129,7 @@ function getProductForm(product = null) {
     .join("");
 
   return `
-    <form id="product-form" class="space-y-4">
+    <form id="product-form" class="space-y-4" enctype="multipart/form-data">
       <div>
         <label class="block text-gray-700 mb-2">Nama Barang</label>
         <input type="text" id="nama_barang" value="${product ? product.nama_barang : ""}" 
@@ -136,10 +141,11 @@ function getProductForm(product = null) {
           class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
       </div>
       <div>
-        <label class="block text-gray-700 mb-2">URL Gambar</label>
-        <input type="text" id="url_gambar" value="${product ? product.url_gambar : ""}" 
-          placeholder="/placeholder.svg?height=200&width=200"
-          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+        <label class="block text-gray-700 mb-2">Gambar</label>
+        <input type="file" id="gambar" accept="image/*" 
+          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" 
+          ${product ? "" : "required"}>
+        ${product ? `<img src="${product.url_gambar}" alt="Current Image" class="w-32 h-32 object-cover mt-2">` : ""}
       </div>
       <div>
         <label class="block text-gray-700 mb-2">Deskripsi</label>
@@ -181,22 +187,20 @@ async function addProduct() {
       document.querySelectorAll('input[type="checkbox"]:checked')
     ).map((cb) => parseInt(cb.value));
 
-    const newProduct = {
-      nama_barang: document.getElementById("nama_barang").value,
-      harga: parseInt(document.getElementById("harga").value),
-      url_gambar: document.getElementById("url_gambar").value || "/placeholder.svg?height=200&width=200",
-      deskripsi: document.getElementById("deskripsi").value,
-      bahan_ids: selectedBahanIds,
-    };
+    const formData = new FormData();
+    formData.append("nama_barang", document.getElementById("nama_barang").value);
+    formData.append("harga", parseInt(document.getElementById("harga").value));
+    formData.append("gambar", document.getElementById("gambar").files[0]);
+    formData.append("deskripsi", document.getElementById("deskripsi").value);
+    formData.append("bahan_ids", JSON.stringify(selectedBahanIds));
 
     try {
       const response = await fetch('http://localhost:3000/api/barang', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(newProduct),
+        body: formData,
       });
       const data = await response.json();
       if (response.ok) {
@@ -234,22 +238,23 @@ async function editProduct(id) {
       document.querySelectorAll('input[type="checkbox"]:checked')
     ).map((cb) => parseInt(cb.value));
 
-    const updatedProduct = {
-      nama_barang: document.getElementById("nama_barang").value,
-      harga: parseInt(document.getElementById("harga").value),
-      url_gambar: document.getElementById("url_gambar").value || "/placeholder.svg?height=200&width=200",
-      deskripsi: document.getElementById("deskripsi").value,
-      bahan_ids: selectedBahanIds,
-    };
+    const formData = new FormData();
+    formData.append("nama_barang", document.getElementById("nama_barang").value);
+    formData.append("harga", parseInt(document.getElementById("harga").value));
+    const gambarInput = document.getElementById("gambar").files[0];
+    if (gambarInput) {
+      formData.append("gambar", gambarInput);
+    }
+    formData.append("deskripsi", document.getElementById("deskripsi").value);
+    formData.append("bahan_ids", JSON.stringify(selectedBahanIds));
 
     try {
       const response = await fetch(`http://localhost:3000/api/barang/${id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedProduct),
+        body: formData,
       });
       const data = await response.json();
       if (response.ok) {
@@ -514,8 +519,10 @@ async function fetchOrders() {
       },
     });
     const data = await response.json();
+    console.log("Data dari API orders:", data); // Log untuk debugging
     if (response.ok) {
-      orders = data.orders || [];
+      orders = data|| [];
+      console.log("Orders yang disimpan:", orders); // Log untuk debugging
       return orders;
     } else if (response.status === 401) {
       showNotification('Token tidak valid. Silakan login ulang.', 'error');
@@ -525,6 +532,7 @@ async function fetchOrders() {
       return [];
     }
   } catch (error) {
+    console.error("Error saat fetchOrders:", error); // Log untuk debugging
     showNotification('Terjadi kesalahan saat mengambil data pesanan', 'error');
     return [];
   }
@@ -547,17 +555,16 @@ async function renderOrders(filteredOrders = null) {
       return `
         <tr class="border-b">
           <td class="p-4 font-medium">${order.id}</td>
-          <td class="p-4">${order.user_name}</td>
+          <td class="p-4">${order.user_id.user_name}</td>
           <td class="p-4">${order.nama_barang} (${order.quantity})</td>
           <td class="p-4">Rp ${order.total_price.toLocaleString("id-ID")}</td>
           <td class="p-4">
             <select onchange="updateOrderStatus(${order.id}, this.value)" 
               class="border rounded px-2 py-1 text-xs ${statusColors[order.status] || "bg-gray-100"}">
-              <option value="pending" ${order.status === "pending" ? "selected" : ""}>Menunggu</option>
-              <option value="processing" ${order.status === "processing" ? "selected" : ""}>Diproses</option>
-              <option value="shipped" ${order.status === "shipped" ? "selected" : ""}>Dikirim</option>
-              <option value="completed" ${order.status === "completed" ? "selected" : ""}>Selesai</option>
-              <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Dibatalkan</option>
+              <option value="diterima" ${order.status == "diterima" ? "selected" : ""}>Menunggu</option>
+              <option value="diproses" ${order.status == "diproses" ? "selected" : ""}>Diproses</option>
+              <option value="selesai" ${order.status == "selesai" ? "selected" : ""}>Selesai</option>
+              <option value="dibatalkan" ${order.status == "dibatalkan" ? "selected" : ""}>Dibatalkan</option>
             </select>
           </td>
           <td class="p-4">${new Date(order.created_at).toLocaleDateString("id-ID")}</td>
@@ -578,6 +585,8 @@ async function updateOrderStatus(orderId, newStatus) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
     return;
   }
+
+  console.log(newStatus);
 
   try {
     const response = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
@@ -658,6 +667,7 @@ function getFilteredOrders() {
   });
 }
 
+// Stock Functions - Updated to use barang_id instead of nama_barang
 // Stock Functions
 async function fetchStocks() {
   const token = localStorage.getItem('authToken');
@@ -667,7 +677,7 @@ async function fetchStocks() {
   }
 
   try {
-    const response = await fetch('http://localhost:3000/api/stock', {
+    const response = await fetch('http://localhost:3000/api/stock/history', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -676,7 +686,8 @@ async function fetchStocks() {
     });
     const data = await response.json();
     if (response.ok) {
-      stocks = data.stocks || [];
+      // Filter for entries where type is "in"
+      stocks = (data.history || []).filter(stock => stock.type === 'in');
       return stocks;
     } else if (response.status === 401) {
       showNotification('Token tidak valid. Silakan login ulang.', 'error');
@@ -704,16 +715,6 @@ async function renderStocks() {
           <td class="p-4">${stock.quantity}</td>
           <td class="p-4">${stock.description || ""}</td>
           <td class="p-4">${new Date(stock.created_at).toLocaleDateString("id-ID")}</td>
-          <td class="p-4">
-            <div class="flex space-x-2">
-              <button onclick="editStock(${stock.id})" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button onclick="deleteStock(${stock.id})" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </td>
         </tr>
       `
     )
@@ -724,8 +725,8 @@ function getStockForm(stock = null) {
   const productOptions = products
     .map(
       (product) =>
-        `<option value="${product.nama_barang}" ${
-          stock && stock.nama_barang === product.nama_barang ? "selected" : ""
+        `<option value="${product.id}" ${
+          stock && stock.barang_id === product.id ? "selected" : ""
         }>${product.nama_barang}</option>`
     )
     .join("");
@@ -734,7 +735,7 @@ function getStockForm(stock = null) {
     <form id="stock-form" class="space-y-4">
       <div>
         <label class="block text-gray-700 mb-2">Barang</label>
-        <select id="nama_barang" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+        <select id="barang_id" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
           <option value="">Pilih barang</option>
           ${productOptions}
         </select>
@@ -793,7 +794,7 @@ async function addStock() {
     e.preventDefault();
 
     const newStock = {
-      nama_barang: document.getElementById("nama_barang").value,
+      barang_id: parseInt(document.getElementById("barang_id").value),
       color: document.getElementById("color").value,
       size: document.getElementById("size").value,
       quantity: parseInt(document.getElementById("quantity").value),
@@ -825,7 +826,179 @@ async function addStock() {
   });
 }
 
-async function editStock(id) {
+async function fetchWarehouseStocks() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return [];
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/stock', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      warehouseStocks = data.stocks || [];
+      return warehouseStocks;
+    } else if (response.status === 401) {
+      showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      return [];
+    } else {
+      showNotification(data.error || 'Gagal mengambil data stok gudang', 'error');
+      return [];
+    }
+  } catch (error) {
+    showNotification('Terjadi kesalahan saat mengambil data stok gudang', 'error');
+    return [];
+  }
+}
+
+async function renderWarehouseStocks() {
+  await fetchWarehouseStocks();
+  const table = document.getElementById("warehouse-stocks-table");
+  table.innerHTML = warehouseStocks
+    .map(
+      (stock) => `
+        <tr class="border-b">
+          <td class="p-4 font-medium">${stock.nama_barang}</td>
+          <td class="p-4">${stock.color}</td>
+          <td class="p-4">${stock.size}</td>
+          <td class="p-4">Rp ${stock.harga.toLocaleString("id-ID")}</td>
+          <td class="p-4 ${stock.quantity <= stock.min_quantity ? 'text-red-500' : ''}">${stock.quantity}</td>
+          <td class="p-4">${stock.min_quantity}</td>
+          <td class="p-4">
+            <div class="flex space-x-2">
+              <button onclick="editWarehouseStock('${stock.barang_id}', '${stock.color}', '${stock.size}')" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteWarehouseStock('${stock.barang_id}', '${stock.color}', '${stock.size}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+}
+
+function getWarehouseStockForm(stock = null) {
+  const productOptions = products
+    .map(
+      (product) =>
+        `<option value="${product.id}" ${
+          stock && stock.barang_id === product.id ? "selected" : ""
+        }>${product.nama_barang}</option>`
+    )
+    .join("");
+
+  return `
+    <form id="warehouse-stock-form" class="space-y-4">
+      <div>
+        <label class="block text-gray-700 mb-2">Barang</label>
+        <select id="barang_id" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+          <option value="">Pilih barang</option>
+          ${productOptions}
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-2">Harga (Rp)</label>
+        <input type="number" id="harga" value="${stock ? stock.harga : ""}" min="0" 
+          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-2">Warna</label>
+        <input type="text" id="color" value="${stock ? stock.color : ""}" placeholder="Hitam" 
+          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-2">Ukuran</label>
+        <select id="size" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+          <option value="">Pilih ukuran</option>
+          <option value="XS" ${stock && stock.size === "XS" ? "selected" : ""}>XS</option>
+          <option value="S" ${stock && stock.size === "S" ? "selected" : ""}>S</option>
+          <option value="M" ${stock && stock.size === "M" ? "selected" : ""}>M</option>
+          <option value="L" ${stock && stock.size === "L" ? "selected" : ""}>L</option>
+          <option value="XL" ${stock && stock.size === "XL" ? "selected" : ""}>XL</option>
+          <option value="XXL" ${stock && stock.size === "XXL" ? "selected" : ""}>XXL</option>
+          <option value="One Size" ${stock && stock.size === "One Size" ? "selected" : ""}>One Size</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-2">Jumlah</label>
+        <input type="number" id="quantity" value="${stock ? stock.quantity : ""}" min="1" 
+          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-2">Stok Minimum</label>
+        <input type="number" id="min_quantity" value="${stock ? stock.min_quantity : ""}" min="0" 
+          class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          Batal
+        </button>
+        <button type="submit" class="bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90">
+          ${stock ? "Update" : "Tambah"} Stok
+        </button>
+      </div>
+    </form>
+  `;
+}
+
+async function addWarehouseStock() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
+    return;
+  }
+
+  await fetchProducts(); // Ambil daftar barang untuk dropdown
+  openModal("Tambah Stok Gudang", getWarehouseStockForm());
+
+  document.getElementById("warehouse-stock-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const newStock = {
+      barang_id: parseInt(document.getElementById("barang_id").value),
+      harga: parseInt(document.getElementById("harga").value),
+      color: document.getElementById("color").value,
+      size: document.getElementById("size").value,
+      quantity: parseInt(document.getElementById("quantity").value),
+      min_quantity: parseInt(document.getElementById("min_quantity").value),
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/api/stock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newStock),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        await renderWarehouseStocks();
+        closeModal();
+        showNotification("Stok gudang berhasil ditambahkan!");
+      } else if (response.status === 401) {
+        showNotification('Token tidak valid. Silakan login ulang.', 'error');
+      } else {
+        showNotification(data.error || 'Gagal menambahkan stok gudang', 'error');
+      }
+    } catch (error) {
+      showNotification('Terjadi kesalahan saat menambahkan stok gudang', 'error');
+    }
+  });
+}
+
+async function editWarehouseStock(barang_id, color, size) {
   const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
@@ -833,24 +1006,27 @@ async function editStock(id) {
   }
 
   await fetchProducts();
-  const stock = stocks.find((s) => s.id === id);
+  const stock = warehouseStocks.find(
+    (s) => s.barang_id == barang_id && s.color === color && s.size === size
+  );
   if (!stock) return;
 
-  openModal("Edit Stok", getStockForm(stock));
+  openModal("Edit Stok Gudang", getWarehouseStockForm(stock));
 
-  document.getElementById("stock-form").addEventListener("submit", async function (e) {
+  document.getElementById("warehouse-stock-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const updatedStock = {
-      nama_barang: document.getElementById("nama_barang").value,
+      barang_id: parseInt(document.getElementById("barang_id").value),
+      harga: parseInt(document.getElementById("harga").value),
       color: document.getElementById("color").value,
       size: document.getElementById("size").value,
       quantity: parseInt(document.getElementById("quantity").value),
-      description: document.getElementById("description").value,
+      min_quantity: parseInt(document.getElementById("min_quantity").value),
     };
 
     try {
-      const response = await fetch(`http://localhost:3000/api/stock/${id}`, {
+      const response = await fetch(`http://localhost:3000/api/stock/${barang_id}/${color}/${size}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -860,21 +1036,21 @@ async function editStock(id) {
       });
       const data = await response.json();
       if (response.ok) {
-        await renderStocks();
+        await renderWarehouseStocks();
         closeModal();
-        showNotification("Stok berhasil diupdate!");
+        showNotification("Stok gudang berhasil diupdate!");
       } else if (response.status === 401) {
         showNotification('Token tidak valid. Silakan login ulang.', 'error');
       } else {
-        showNotification(data.error || 'Gagal mengupdate stok', 'error');
+        showNotification(data.error || 'Gagal mengupdate stok gudang', 'error');
       }
     } catch (error) {
-      showNotification('Terjadi kesalahan saat mengupdate stok', 'error');
+      showNotification('Terjadi kesalahan saat mengupdate stok gudang', 'error');
     }
   });
 }
 
-async function deleteStock(id) {
+async function deleteWarehouseStock(barang_id, color, size) {
   const token = localStorage.getItem('authToken');
   if (!token) {
     showNotification('Silakan login sebagai admin terlebih dahulu', 'error');
@@ -883,7 +1059,7 @@ async function deleteStock(id) {
 
   if (confirm("Apakah Anda yakin ingin menghapus stok ini?")) {
     try {
-      const response = await fetch(`http://localhost:3000/api/stock/${id}`, {
+      const response = await fetch(`http://localhost:3000/api/stock/${barang_id}/${color}/${size}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -891,15 +1067,15 @@ async function deleteStock(id) {
       });
       const data = await response.json();
       if (response.ok) {
-        await renderStocks();
-        showNotification("Stok berhasil dihapus!");
+        await renderWarehouseStocks();
+        showNotification("Stok gudang berhasil dihapus!");
       } else if (response.status === 401) {
         showNotification('Token tidak valid. Silakan login ulang.', 'error');
       } else {
-        showNotification(data.error || 'Gagal menghapus stok', 'error');
+        showNotification(data.error || 'Gagal menghapus stok gudang', 'error');
       }
     } catch (error) {
-      showNotification('Terjadi kesalahan saat menghapus stok', 'error');
+      showNotification('Terjadi kesalahan saat menghapus stok gudang', 'error');
     }
   }
 }
@@ -951,4 +1127,5 @@ document.addEventListener("DOMContentLoaded", function () {
   renderMaterials();
   renderOrders();
   renderStocks();
-});``
+  renderWarehouseStocks();
+});

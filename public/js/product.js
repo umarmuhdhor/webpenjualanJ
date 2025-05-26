@@ -107,7 +107,7 @@ async function loadProductDetail() {
   const productData = await fetchProductData(); // ambil data dari API
 
   // Cari produk berdasarkan ID
-  const product = productData.find(item => item.id === parseInt(productID));
+  const product = productData.find((item) => item.id === parseInt(productID));
 
   if (!product) {
     console.error("Produk tidak ditemukan");
@@ -126,14 +126,14 @@ async function loadProductDetail() {
   const materialsContainer = document.getElementById("product-materials");
   const produkInput = document.getElementById("produk");
   const bahanSelect = document.getElementById("bahan");
-  console.log(product)
+  console.log(product);
   if (productTitle) productTitle.textContent = product.nama_barang;
   if (unitPrice) unitPrice.textContent = product.harga;
   if (productBreadcrumb) productBreadcrumb.textContent = product.nama_barang;
   if (productDescription) productDescription.textContent = product.deskripsi;
   if (productPrice) productPrice.textContent = product.harga;
   if (productImage) {
-    productImage.src = product.url_gambar;
+    productImage.src = `http://localhost:3000/images/${product.url_gambar}`;
     productImage.alt = product.nama_barang;
   }
   if (produkInput) produkInput.value = product.nama_barang;
@@ -189,14 +189,14 @@ async function fetchProductData() {
 }
 
 async function setMinInputByStock() {
-  const id = getUrlParameter(); 
+  const id = getUrlParameter();
   const response = await fetch("http://localhost:3000/api/stock");
   const datastok = await response.json();
   const barangList = datastok.stocks;
 
   const productID = getUrlParameter();
   const productData = await fetchProductData();
-  const product = productData.find(item => item.id === parseInt(productID));
+  const product = productData.find((item) => item.id === parseInt(productID));
 
   if (!product) {
     console.error("Produk tidak ditemukan");
@@ -206,13 +206,15 @@ async function setMinInputByStock() {
   const hargaBarang = product.harga;
   console.log("Harga barang:", hargaBarang);
 
-  const filtered = barangList.filter(item => item.barang_id === parseInt(id));
-  const colors = [...new Set(filtered.map(item => item.color))];
+  const filtered = barangList.filter((item) => item.barang_id === parseInt(id));
+  const colors = [...new Set(filtered.map((item) => item.color))];
 
   const colorSelect = document.getElementById("color");
   colorSelect.innerHTML = '<option value="">-- Pilih Warna --</option>';
-  colors.forEach(color => {
-    const hasStock = filtered.some(item => item.color === color && item.quantity > 0);
+  colors.forEach((color) => {
+    const hasStock = filtered.some(
+      (item) => item.color === color && item.quantity > 0
+    );
     if (hasStock) {
       const option = document.createElement("option");
       option.value = color;
@@ -235,107 +237,119 @@ async function setMinInputByStock() {
 
   let daftarUkuran = [];
 
-  document.getElementById("tambah-ukuran").addEventListener("click", function () {
-    const color = document.getElementById("color").value;
-    const size = document.getElementById("size").value;
-    const quantity = parseInt(document.getElementById("quantity").value);
+  document
+    .getElementById("tambah-ukuran")
+    .addEventListener("click", function () {
+      const color = document.getElementById("color").value;
+      const size = document.getElementById("size").value;
+      const quantity = parseInt(document.getElementById("quantity").value);
 
-    if (!color || !size || !quantity || quantity <= 0) {
-      alert("Lengkapi warna, ukuran, dan jumlah terlebih dahulu.");
-      return;
-    }
+      if (!color || !size || !quantity || quantity <= 0) {
+        alert("Lengkapi warna, ukuran, dan jumlah terlebih dahulu.");
+        return;
+      }
 
-    const existing = daftarUkuran.find(item => item.color === color && item.size === size);
-    if (existing) {
-      alert("Kombinasi warna dan ukuran ini sudah ditambahkan.");
-      return;
-    }
+      const existing = daftarUkuran.find(
+        (item) => item.color === color && item.size === size
+      );
+      if (existing) {
+        alert("Kombinasi warna dan ukuran ini sudah ditambahkan.");
+        return;
+      }
 
-    daftarUkuran.push({ color, size, quantity });
+      daftarUkuran.push({ color, size, quantity });
 
-    const list = document.getElementById("ukuran-list");
-    const item = document.createElement("div");
-    item.className = "flex justify-between items-center bg-gray-100 p-2 rounded";
-    item.innerHTML = `
+      const list = document.getElementById("ukuran-list");
+      const item = document.createElement("div");
+      item.className =
+        "flex justify-between items-center bg-gray-100 p-2 rounded";
+      item.innerHTML = `
       <span>${color} - ${size} - ${quantity} pcs</span>
       <button class="text-red-500 hover:underline remove-item">Hapus</button>
     `;
-    list.appendChild(item);
+      list.appendChild(item);
 
-    item.querySelector(".remove-item").addEventListener("click", () => {
-      list.removeChild(item);
-      daftarUkuran = daftarUkuran.filter(u => !(u.color === color && u.size === size));
+      item.querySelector(".remove-item").addEventListener("click", () => {
+        list.removeChild(item);
+        daftarUkuran = daftarUkuran.filter(
+          (u) => !(u.color === color && u.size === size)
+        );
+      });
+
+      document.getElementById("size").selectedIndex = 0;
+      document.getElementById("quantity").value = "";
+      document.getElementById("quantity").disabled = true;
     });
 
-    document.getElementById("size").selectedIndex = 0;
-    document.getElementById("quantity").value = "";
-    document.getElementById("quantity").disabled = true;
-  });
+  document
+    .getElementById("checkout-button")
+    .addEventListener("click", async function (e) {
+      e.preventDefault();
 
-  document.getElementById("checkout-button").addEventListener("click", async function (e) {
-    e.preventDefault();
+      const barangId = parseInt(getUrlParameter());
+      const details = document.getElementById("custom-text").value;
+      const unitPrice = product.harga;
+      const designInput = document.getElementById("design-upload");
 
-    const barangId = parseInt(getUrlParameter());
-    const details = document.getElementById("custom-text").value;
-    const unitPrice = product.harga;
-    const designInput = document.getElementById("design-upload");
-
-    if (daftarUkuran.length === 0) {
-      alert("Tambahkan minimal satu kombinasi ukuran terlebih dahulu.");
-      return;
-    }
-
-    const file = designInput.files[0];
-    let designs = [];
-    if (file) {
-      designs.push({
-        type: "sablon",
-        url: `/designs/${file.name}`
-      });
-    }
-
-    const totalQuantity = daftarUkuran.reduce((sum, item) => sum + item.quantity, 0);
-
-    const data = {
-      barang_id: barangId,
-      sizes: daftarUkuran,
-      quantity: totalQuantity,
-      details: details || "-",
-      unitPrice: unitPrice,
-      designs: designs
-    };
-
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Kamu harus login terlebih dahulu.");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:3000/api/orders", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Gagal membuat pesanan");
+      if (daftarUkuran.length === 0) {
+        alert("Tambahkan minimal satu kombinasi ukuran terlebih dahulu.");
+        return;
       }
 
-      alert("Pesanan berhasil dibuat!");
-      daftarUkuran = [];
-      document.getElementById("ukuran-list").innerHTML = "";
-      document.querySelector("form").reset();
-      document.getElementById("total-harga").textContent = "Rp 0";
-    } catch (err) {
-      console.error("Error saat membuat order:", err);
-      alert("Terjadi kesalahan saat membuat pesanan.");
-    }
-  });
+      const file = designInput.files[0];
+      let designs = [];
+      if (file) {
+        designs.push({
+          type: "sablon",
+          url: `/designs/${file.name}`,
+        });
+      }
+
+      const totalQuantity = daftarUkuran.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+
+      const data = {
+        barang_id: barangId,
+        sizes: daftarUkuran,
+        quantity: totalQuantity,
+        details: details || "-",
+        unitPrice: unitPrice,
+        designs: designs,
+      };
+
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Kamu harus login terlebih dahulu.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/api/orders", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.message || "Gagal membuat pesanan");
+        }
+
+        alert("Pesanan berhasil dibuat!");
+        daftarUkuran = [];
+        document.getElementById("ukuran-list").innerHTML = "";
+        document.querySelector("form").reset();
+        document.getElementById("total-harga").textContent = "Rp 0";
+      } catch (err) {
+        console.error("Error saat membuat order:", err);
+        alert("Terjadi kesalahan saat membuat pesanan.");
+      }
+    });
 
   function populateSizeOptions(selectedColor) {
     const sizeSelect = document.getElementById("size");
@@ -343,12 +357,15 @@ async function setMinInputByStock() {
     sizeSelect.innerHTML = '<option value="">-- Pilih Ukuran --</option>';
 
     const sizes = barangList
-        .filter(item => item.color === selectedColor && item.barang_id === parseInt(id))
-        .filter(item => item.quantity > 0)
-        .map(item => item.size);
+      .filter(
+        (item) =>
+          item.color === selectedColor && item.barang_id === parseInt(id)
+      )
+      .filter((item) => item.quantity > 0)
+      .map((item) => item.size);
 
     const uniqueSizes = [...new Set(sizes)];
-    uniqueSizes.forEach(size => {
+    uniqueSizes.forEach((size) => {
       const option = document.createElement("option");
       option.value = size;
       option.textContent = size;
@@ -361,7 +378,8 @@ async function setMinInputByStock() {
   }
 
   function handleQuantityEnable(color, size) {
-    const stockItem = barangList.find(item =>
+    const stockItem = barangList.find(
+      (item) =>
         item.barang_id === parseInt(id) &&
         item.color === color &&
         item.size === size
@@ -390,7 +408,7 @@ async function setMinInputByStock() {
   function formatRupiah(angka) {
     return "Rp" + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
-} 
+}
 
 // Fungsi untuk change main product image
 function changeMainImage(src) {
@@ -449,9 +467,15 @@ async function initProductPage() {
       const productImage = document.getElementById("product-image").src;
 
       // Get selected material (first one as default)
-      const selectedMaterial = document.querySelector("#product-materials .border-primary")
-        ? document.querySelector("#product-materials .border-primary").querySelector(".font-medium").textContent
-        : document.querySelector("#product-materials div").querySelector(".font-medium").textContent;
+      const selectedMaterial = document.querySelector(
+        "#product-materials .border-primary"
+      )
+        ? document
+            .querySelector("#product-materials .border-primary")
+            .querySelector(".font-medium").textContent
+        : document
+            .querySelector("#product-materials div")
+            .querySelector(".font-medium").textContent;
 
       // Create product object
       const product = {
@@ -506,10 +530,10 @@ async function initProductPage() {
   });
 }
 
-
 // Export product functions
 window.Product = {
-  loadDetail: loadProductDetail,setMinInputByStock,
+  loadDetail: loadProductDetail,
+  setMinInputByStock,
   changeMainImage,
   scrollToOrderForm,
   openTab,

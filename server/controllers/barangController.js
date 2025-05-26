@@ -1,4 +1,6 @@
 const db = require('../config/db');
+const path = require('path');
+const fs = require('fs');
 
 // Ambil daftar barang beserta bahan terkait
 const getBarang = (req, res) => {
@@ -28,22 +30,33 @@ const getBarang = (req, res) => {
 const addBarang = (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya untuk admin' });
 
-  const { nama_barang, url_gambar, deskripsi, bahan_ids, harga } = req.body;
+  const { nama_barang, deskripsi, bahan_ids, harga } = req.body;
+  const gambar = req.file ? `images/${req.file.filename}` : null;
 
+  // Validasi input
   if (!nama_barang || typeof nama_barang !== 'string' || nama_barang.length > 100) {
     return res.status(400).json({ error: 'nama_barang harus berupa string maksimal 100 karakter' });
   }
-  if (url_gambar && (typeof url_gambar !== 'string' || url_gambar.length > 255)) {
-    return res.status(400).json({ error: 'url_gambar harus berupa string maksimal 255 karakter' });
+  if (!gambar) {
+    return res.status(400).json({ error: 'Gambar diperlukan' });
   }
   if (deskripsi && (typeof deskripsi !== 'string' || deskripsi.length > 1000)) {
     return res.status(400).json({ error: 'deskripsi harus berupa string maksimal 1000 karakter' });
   }
-  if (!bahan_ids || !Array.isArray(bahan_ids) || bahan_ids.length === 0) {
-    return res.status(400).json({ error: 'bahan_ids harus berupa array ID bahan non-kosong' });
+  if (!bahan_ids) {
+    return res.status(400).json({ error: 'bahan_ids diperlukan' });
   }
-  if (bahan_ids.some(id => isNaN(id) || id <= 0)) {
-    return res.status(400).json({ error: 'bahan_ids harus berisi ID bahan yang valid' });
+  let bahanIdsArray;
+  try {
+    bahanIdsArray = JSON.parse(bahan_ids);
+    if (!Array.isArray(bahanIdsArray) || bahanIdsArray.length === 0) {
+      return res.status(400).json({ error: 'bahan_ids harus berupa array ID bahan non-kosong' });
+    }
+    if (bahanIdsArray.some(id => isNaN(id) || id <= 0)) {
+      return res.status(400).json({ error: 'bahan_ids harus berisi ID bahan yang valid' });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: 'bahan_ids harus berupa string JSON array yang valid' });
   }
   if (!harga || isNaN(harga) || harga <= 0) {
     return res.status(400).json({ error: 'harga harus berupa angka positif' });
@@ -54,19 +67,19 @@ const addBarang = (req, res) => {
       return res.status(500).json({ error: 'Gagal memulai transaksi', details: err.message });
     }
 
-    db.all('SELECT id FROM bahan WHERE id IN (' + bahan_ids.map(() => '?').join(',') + ')', bahan_ids, (err, bahan) => {
+    db.all('SELECT id FROM bahan WHERE id IN (' + bahanIdsArray.map(() => '?').join(',') + ')', bahanIdsArray, (err, bahan) => {
       if (err) {
         db.run('ROLLBACK');
         return res.status(500).json({ error: 'Gagal memeriksa bahan', details: err.message });
       }
-      if (bahan.length !== bahan_ids.length) {
+      if (bahan.length !== bahanIdsArray.length) {
         db.run('ROLLBACK');
         return res.status(400).json({ error: 'Satu atau lebih bahan_ids tidak valid' });
       }
 
       db.run(
         'INSERT INTO barang (nama_barang, url_gambar, deskripsi, harga) VALUES (?, ?, ?, ?)',
-        [nama_barang, url_gambar || null, deskripsi || null, harga],
+        [nama_barang, gambar, deskripsi || null, harga],
         function (err) {
           if (err) {
             db.run('ROLLBACK');
@@ -74,7 +87,7 @@ const addBarang = (req, res) => {
           }
           const barangId = this.lastID;
 
-          const insertBahan = bahan_ids.map(bahan_id => {
+          const insertBahan = bahanIdsArray.map(bahan_id => {
             return new Promise((resolve, reject) => {
               db.run(
                 'INSERT INTO barang_bahan (barang_id, bahan_id) VALUES (?, ?)',
@@ -91,7 +104,23 @@ const addBarang = (req, res) => {
                   db.run('ROLLBACK');
                   return res.status(500).json({ error: 'Gagal menyelesaikan transaksi', details: err.message });
                 }
-                res.json({ message: 'Barang berhasil ditambahkan', barang_id: barangId });
+                // Fetch the newly created barang with bahan for response
+                db.get('SELECT id, nama_barang, url_gambar, deskripsi, harga FROM barang WHERE id = ?', [barangId], (err, item) => {
+                  if (err) {
+                    return res.status(500).json({ error: 'Gagal mengambil barang', details: err.message });
+                  }
+                  db.all(
+                    'SELECT b.id, b.nama_bahan, b.deskripsi FROM bahan b ' +
+                    'JOIN barang_bahan bb ON b.id = bb.bahan_id WHERE bb.barang_id = ?',
+                    [barangId],
+                    (err, bahan) => {
+                      if (err) {
+                        return res.status(500).json({ error: 'Gagal mengambil bahan', details: err.message });
+                      }
+                      res.json({ message: 'Barang berhasil ditambahkan', barang: { ...item, bahan } });
+                    }
+                  );
+                });
               });
             })
             .catch((err) => {
@@ -119,7 +148,7 @@ const deleteBarang = (req, res) => {
       return res.status(500).json({ error: 'Gagal memulai transaksi', details: err.message });
     }
 
-    db.get('SELECT id FROM barang WHERE id = ?', [barangId], (err, barang) => {
+    db.get('SELECT id, url_gambar FROM barang WHERE id = ?', [barangId], (err, barang) => {
       if (err) {
         db.run('ROLLBACK');
         return res.status(500).json({ error: 'Gagal memeriksa barang', details: err.message });
@@ -129,7 +158,7 @@ const deleteBarang = (req, res) => {
         return res.status(404).json({ error: 'Barang tidak ditemukan' });
       }
 
-      db.get('SELECT id FROM orders WHERE barang_id = ?', [barangId], (err, order) => {
+      db.get("SELECT id FROM orders WHERE barang_id = ? AND status = 'diproses'", [barangId], (err, order) => {
         if (err) {
           db.run('ROLLBACK');
           return res.status(500).json({ error: 'Gagal memeriksa pesanan', details: err.message });
@@ -147,6 +176,14 @@ const deleteBarang = (req, res) => {
           if (stock) {
             db.run('ROLLBACK');
             return res.status(400).json({ error: 'Barang tidak dapat dihapus karena masih memiliki stok' });
+          }
+
+          // Delete image file
+          if (barang.url_gambar) {
+            const imagePath = path.join(__dirname, '../public', barang.url_gambar);
+            if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath);
+            }
           }
 
           db.run('DELETE FROM barang_bahan WHERE barang_id = ?', [barangId], (err) => {
@@ -185,7 +222,8 @@ const updateBarang = (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya untuk admin' });
 
   const barangId = req.params.id;
-  const { nama_barang, url_gambar, deskripsi, bahan_ids, harga } = req.body;
+  const { nama_barang, deskripsi, bahan_ids, harga } = req.body;
+  const gambar = req.file ? `images/${req.file.filename}` : undefined;
 
   if (isNaN(barangId) || barangId <= 0) {
     return res.status(400).json({ error: 'ID barang tidak valid' });
@@ -194,14 +232,19 @@ const updateBarang = (req, res) => {
   if (nama_barang && (typeof nama_barang !== 'string' || nama_barang.length > 100)) {
     return res.status(400).json({ error: 'nama_barang harus berupa string maksimal 100 karakter' });
   }
-  if (url_gambar && (typeof url_gambar !== 'string' || url_gambar.length > 255)) {
-    return res.status(400).json({ error: 'url_gambar harus berupa string maksimal 255 karakter' });
-  }
   if (deskripsi && (typeof deskripsi !== 'string' || deskripsi.length > 1000)) {
     return res.status(400).json({ error: 'deskripsi harus berupa string maksimal 1000 karakter' });
   }
-  if (bahan_ids && (!Array.isArray(bahan_ids) || bahan_ids.some(id => isNaN(id) || id <= 0))) {
-    return res.status(400).json({ error: 'bahan_ids harus berupa array ID bahan yang valid' });
+  if (bahan_ids) {
+    let bahanIdsArray;
+    try {
+      bahanIdsArray = JSON.parse(bahan_ids);
+      if (!Array.isArray(bahanIdsArray) || bahanIdsArray.some(id => isNaN(id) || id <= 0)) {
+        return res.status(400).json({ error: 'bahan_ids harus berupa array ID bahan yang valid' });
+      }
+    } catch (error) {
+      return res.status(400).json({ error: 'bahan_ids harus berupa string JSON array yang valid' });
+    }
   }
   if (harga !== undefined && (isNaN(harga) || harga <= 0)) {
     return res.status(400).json({ error: 'harga harus berupa angka positif' });
@@ -212,7 +255,7 @@ const updateBarang = (req, res) => {
       return res.status(500).json({ error: 'Gagal memulai transaksi', details: err.message });
     }
 
-    db.get('SELECT id FROM barang WHERE id = ?', [barangId], (err, barang) => {
+    db.get('SELECT id, url_gambar FROM barang WHERE id = ?', [barangId], (err, barang) => {
       if (err) {
         db.run('ROLLBACK');
         return res.status(500).json({ error: 'Gagal memeriksa barang', details: err.message });
@@ -222,11 +265,115 @@ const updateBarang = (req, res) => {
         return res.status(404).json({ error: 'Barang tidak ditemukan' });
       }
 
+      // Delete old image if a new one is uploaded
+      if (gambar && barang.url_gambar) {
+        const oldImagePath = path.join(__dirname, '../public', barang.url_gambar);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+
       const updates = {};
       if (nama_barang) updates.nama_barang = nama_barang;
-      if (url_gambar !== undefined) updates.url_gambar = url_gambar || null;
+      if (gambar !== undefined) updates.url_gambar = gambar;
       if (deskripsi !== undefined) updates.deskripsi = deskripsi || null;
       if (harga !== undefined) updates.harga = harga;
+
+      const proceedWithBahan = () => {
+        if (!bahan_ids) {
+          db.run('COMMIT', (err) => {
+            if (err) {
+              db.run('ROLLBACK');
+              return res.status(500).json({ error: 'Gagal menyelesaikan transaksi', details: err.message });
+            }
+            // Fetch updated barang with bahan
+            db.get('SELECT id, nama_barang, url_gambar, deskripsi, harga FROM barang WHERE id = ?', [barangId], (err, item) => {
+              if (err) {
+                return res.status(500).json({ error: 'Gagal mengambil barang', details: err.message });
+              }
+              db.all(
+                'SELECT b.id, b.nama_bahan, b.deskripsi FROM bahan b ' +
+                'JOIN barang_bahan bb ON b.id = bb.bahan_id WHERE bb.barang_id = ?',
+                [barangId],
+                (err, bahan) => {
+                  if (err) {
+                    return res.status(500).json({ error: 'Gagal mengambil bahan', details: err.message });
+                  }
+                  res.json({ message: 'Barang berhasil diperbarui', barang: { ...item, bahan } });
+                }
+              );
+            });
+          });
+          return;
+        }
+
+        let bahanIdsArray;
+        try {
+          bahanIdsArray = JSON.parse(bahan_ids);
+        } catch (error) {
+          db.run('ROLLBACK');
+          return res.status(400).json({ error: 'bahan_ids harus berupa string JSON array yang valid' });
+        }
+
+        db.all('SELECT id FROM bahan WHERE id IN (' + bahanIdsArray.map(() => '?').join(',') + ')', bahanIdsArray, (err, bahan) => {
+          if (err) {
+            db.run('ROLLBACK');
+            return res.status(500).json({ error: 'Gagal memeriksa bahan', details: err.message });
+          }
+          if (bahan.length !== bahanIdsArray.length) {
+            db.run('ROLLBACK');
+            return res.status(400).json({ error: 'Satu atau lebih bahan_ids tidak valid' });
+          }
+
+          db.run('DELETE FROM barang_bahan WHERE barang_id = ?', [barangId], (err) => {
+            if (err) {
+              db.run('ROLLBACK');
+              return res.status(500).json({ error: 'Gagal menghapus relasi barang_bahan lama', details: err.message });
+            }
+
+            const insertBahan = bahanIdsArray.map(bahan_id => {
+              return new Promise((resolve, reject) => {
+                db.run(
+                  'INSERT INTO barang_bahan (barang_id, bahan_id) VALUES (?, ?)',
+                  [barangId, bahan_id],
+                  (err) => (err ? reject(err) : resolve())
+                );
+              });
+            });
+
+            Promise.all(insertBahan)
+              .then(() => {
+                db.run('COMMIT', (err) => {
+                  if (err) {
+                    db.run('ROLLBACK');
+                    return res.status(500).json({ error: 'Gagal menyelesaikan transaksi', details: err.message });
+                  }
+                  // Fetch updated barang with bahan
+                  db.get('SELECT id, nama_barang, url_gambar, deskripsi, harga FROM barang WHERE id = ?', [barangId], (err, item) => {
+                    if (err) {
+                      return res.status(500).json({ error: 'Gagal mengambil barang', details: err.message });
+                    }
+                    db.all(
+                      'SELECT b.id, b.nama_bahan, b.deskripsi FROM bahan b ' +
+                      'JOIN barang_bahan bb ON b.id = bb.bahan_id WHERE bb.barang_id = ?',
+                      [barangId],
+                      (err, bahan) => {
+                        if (err) {
+                          return res.status(500).json({ error: 'Gagal mengambil bahan', details: err.message });
+                        }
+                        res.json({ message: 'Barang berhasil diperbarui', barang: { ...item, bahan } });
+                      }
+                    );
+                  });
+                });
+              })
+              .catch((err) => {
+                db.run('ROLLBACK');
+                res.status(500).json({ error: 'Gagal menambah relasi barang_bahan baru', details: err.message });
+              });
+          });
+        });
+      };
 
       if (Object.keys(updates).length > 0) {
         const setClause = Object.keys(updates).map(key => `${key} = ?`).join(', ');
@@ -247,62 +394,6 @@ const updateBarang = (req, res) => {
         );
       } else {
         proceedWithBahan();
-      }
-
-      function proceedWithBahan() {
-        if (!bahan_ids) {
-          db.run('COMMIT', (err) => {
-            if (err) {
-              db.run('ROLLBACK');
-              return res.status(500).json({ error: 'Gagal menyelesaikan transaksi', details: err.message });
-            }
-            res.json({ message: 'Barang berhasil diperbarui' });
-          });
-          return;
-        }
-
-        db.all('SELECT id FROM bahan WHERE id IN (' + bahan_ids.map(() => '?').join(',') + ')', bahan_ids, (err, bahan) => {
-          if (err) {
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: 'Gagal memeriksa bahan', details: err.message });
-          }
-          if (bahan.length !== bahan_ids.length) {
-            db.run('ROLLBACK');
-            return res.status(400).json({ error: 'Satu atau lebih bahan_ids tidak valid' });
-          }
-
-          db.run('DELETE FROM barang_bahan WHERE barang_id = ?', [barangId], (err) => {
-            if (err) {
-              db.run('ROLLBACK');
-              return res.status(500).json({ error: 'Gagal menghapus relasi barang_bahan lama', details: err.message });
-            }
-
-            const insertBahan = bahan_ids.map(bahan_id => {
-              return new Promise((resolve, reject) => {
-                db.run(
-                  'INSERT INTO barang_bahan (barang_id, bahan_id) VALUES (?, ?)',
-                  [barangId, bahan_id],
-                  (err) => (err ? reject(err) : resolve())
-                );
-              });
-            });
-
-            Promise.all(insertBahan)
-              .then(() => {
-                db.run('COMMIT', (err) => {
-                  if (err) {
-                    db.run('ROLLBACK');
-                    return res.status(500).json({ error: 'Gagal menyelesaikan transaksi', details: err.message });
-                  }
-                  res.json({ message: 'Barang berhasil diperbarui' });
-                });
-              })
-              .catch((err) => {
-                db.run('ROLLBACK');
-                res.status(500).json({ error: 'Gagal menambah relasi barang_bahan baru', details: err.message });
-              });
-          });
-        });
       }
     });
   });

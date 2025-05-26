@@ -8,8 +8,8 @@ const ADDITIONAL_COST_PER_DESIGN = 20000;
 const createOrder = (req, res) => {
   const { barang_id, sizes, quantity, details, designs } = req.body;
 
-  if (!quantity || quantity < 12) {
-    return res.status(400).json({ error: 'Minimal pesanan adalah 12 pcs' });
+  if (!quantity || quantity < 1) {
+    return res.status(400).json({ error: 'Minimal pesanan adalah 1 pcs' });
   }
 
   if (!barang_id || isNaN(barang_id)) {
